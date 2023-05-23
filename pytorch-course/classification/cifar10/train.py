@@ -112,7 +112,7 @@ def train() -> None:
     model = LeNet(num_classes=num_classes).to(device)
 
     loss_fn = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9)
+    optimizer = optim.Adam(model.parameters(), lr=lr)
 
     for t in range(epochs):
         print(f'Epoch {t+1}\n-------------------------------')
