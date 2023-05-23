@@ -40,7 +40,7 @@ def train_one_epoch(dataloader: DataLoader, device: str, model: nn.Module, loss_
             print(f'loss: {loss:>7f}  [{current:>5d}/{size:>5d}]')
 
 
-def val_one_epoch(dataloader: DataLoader, device: str, model: nn.Module, loss_fn: nn.Module) -> None:
+def valid_one_epoch(dataloader: DataLoader, device: str, model: nn.Module, loss_fn: nn.Module) -> None:
     """MNIST 데이터셋으로 뉴럴 네트워크의 성능을 테스트합니다.
 
     :param dataloader: 파이토치 데이터로더
@@ -86,13 +86,11 @@ def train(device: str):
     :param epochs: 전체 학습 데이터셋을 훈련하는 횟수
     :type epochs: int
     """
-    training_data = MnistDataset("./data/MNIST - JPG - training")
-    print(len(training_data.data))
-    test_data = MnistDataset("./data/MNIST - JPG - testing")
-    print(len(test_data.data))
+    trainset = MnistDataset("./data/MNIST - JPG - training")
+    testset = MnistDataset("./data/MNIST - JPG - testing")
 
-    train_dataloader = DataLoader(training_data, batch_size=batch_size, shuffle=True, num_workers=4)
-    test_dataloader = DataLoader(test_data, batch_size=batch_size, num_workers=4)
+    train_loader = DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
+    test_loader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
 
     # device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -103,8 +101,8 @@ def train(device: str):
 
     for t in range(epochs):
         print(f'Epoch {t+1}\n-------------------------------')
-        train_one_epoch(train_dataloader, device, model, loss_fn, optimizer)
-        val_one_epoch(test_dataloader, device, model, loss_fn)
+        train_one_epoch(train_loader, device, model, loss_fn, optimizer)
+        valid_one_epoch(test_loader, device, model, loss_fn)
     print('Done!')
 
     torch.save(model.state_dict(), 'mnist-net.pth')
