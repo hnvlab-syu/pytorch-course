@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 
 
 class Cifar10Dataset(Dataset):
-    def __init__(self, image_dir, label_path, transform, mode='train'):
+    def __init__(self, image_dir, label_path, transform):
         super().__init__()
 
         self.image_dir = image_dir

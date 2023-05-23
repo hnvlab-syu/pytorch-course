@@ -79,6 +79,9 @@ def train() -> None:
     :param epochs: 전체 학습 데이터셋을 훈련하는 횟수
     :type epochs: int
     """
+    image_dir = 'C:\\Users\\leeye\\Downloads\\cifar-10\\train'
+    label_path = 'C:\\Users\\leeye\\Downloads\\cifar-10\\trainLabels.csv'
+
     num_classes = 10
     batch_size = 32
     epochs = 5
@@ -90,10 +93,16 @@ def train() -> None:
     ])
 
     training_data = Cifar10Dataset(
-        
+        image_dir,
+        label_path,
+        transform=transform
     )
 
-    test_data = 
+    test_data = Cifar10Dataset(
+        image_dir,
+        label_path,
+        transform=transform
+    )
 
     train_dataloader = DataLoader(training_data, batch_size=batch_size, num_workers=0)
     test_dataloader = DataLoader(test_data, batch_size=batch_size, num_workers=0)
@@ -113,3 +122,7 @@ def train() -> None:
 
     torch.save(model.state_dict(), 'cifar-net-lenet.pth')
     print('Saved PyTorch Model State to cifar-net-lenet.pth')
+
+
+if __name__ == '__main__':
+    train()
