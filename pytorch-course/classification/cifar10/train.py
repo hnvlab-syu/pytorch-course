@@ -90,8 +90,7 @@ def train() -> None:
     ])
 
     training_data = Cifar10Dataset(
-        data_dir=,
-        transform=
+        
     )
 
     test_data = 
