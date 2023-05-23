@@ -3,6 +3,7 @@ from torch import nn, optim
 from torch.utils.data import DataLoader
 
 from src.model import NeuralNetwork
+from src.dataset import MnistDataset
 
 
 def train_one_epoch(dataloader: DataLoader, device: str, model: nn.Module, loss_fn: nn.Module, optimizer) -> None:
@@ -24,6 +25,7 @@ def train_one_epoch(dataloader: DataLoader, device: str, model: nn.Module, loss_
     for batch, (images, targets) in enumerate(dataloader):
         images = images.to(device)
         targets = targets.to(device)
+        targets = torch.flatten(targets)
 
         preds = model(images)
         loss = loss_fn(preds, targets)
@@ -59,17 +61,19 @@ def val_one_epoch(dataloader: DataLoader, device: str, model: nn.Module, loss_fn
         for images, targets in dataloader:
             images = images.to(device)
             targets = targets.to(device)
+            targets = torch.flatten(targets)
 
             preds = model(images)
 
             test_loss += loss_fn(preds, targets).item()
             correct += (preds.argmax(1) == targets).float().sum().item()
+
     test_loss /= num_batches
     correct /= size
     print(f'Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n')
 
 
-def train():
+def train(device: str):
     num_classes = 10
     batch_size = 32
     epochs = 5
@@ -82,14 +86,15 @@ def train():
     :param epochs: 전체 학습 데이터셋을 훈련하는 횟수
     :type epochs: int
     """
-    training_data = 
+    training_data = MnistDataset("./data/MNIST - JPG - training")
+    print(len(training_data.data))
+    test_data = MnistDataset("./data/MNIST - JPG - testing")
+    print(len(test_data.data))
 
-    test_data = 
+    train_dataloader = DataLoader(training_data, batch_size=batch_size, shuffle=True, num_workers=4)
+    test_dataloader = DataLoader(test_data, batch_size=batch_size, num_workers=4)
 
-    train_dataloader = DataLoader(training_data, batch_size=batch_size, num_workers=0)
-    test_dataloader = DataLoader(test_data, batch_size=batch_size, num_workers=0)
-
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    # device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     model = NeuralNetwork(num_classes=num_classes).to(device)
 
@@ -104,3 +109,7 @@ def train():
 
     torch.save(model.state_dict(), 'mnist-net.pth')
     print('Saved PyTorch Model State to mnist-net.pth')
+
+
+if __name__ == "__main__":
+    train("cuda")
