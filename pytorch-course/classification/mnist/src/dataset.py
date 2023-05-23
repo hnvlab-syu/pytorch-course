@@ -1,5 +1,6 @@
 import os
 import glob
+from pathlib import Path
 import numpy as np
 from PIL import Image
 from torch.utils.data import Dataset
@@ -20,7 +21,9 @@ class MnistDataset(Dataset):
     def __getitem__(self, index):
         image = self.data[index]
         # print(image)
-        label = self.data[index].split('\\')[-2]
+        # label = self.data[index].split('\\')[-2]
+        label = Path(image).parts[-2]
+        # print(label)
         image = Image.open(image)
         # print(image, label)
         image = np.array(image)
@@ -30,6 +33,6 @@ class MnistDataset(Dataset):
         return image, label
 
 if __name__ == "__main__":
-    dataset = MnistDataset(data_dir='../data/MNIST - JPG - training', transform=None)
+    dataset = MnistDataset(data_dir='./data/MNIST - JPG - training', transform=None)
     print(len(dataset))
     print(dataset[0])
