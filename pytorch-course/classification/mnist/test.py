@@ -1,9 +1,16 @@
+import argparse
+
 import torch
 from torch import nn
 from torch.utils.data import Dataset
 
 from src.model import NeuralNetwork
 from src.dataset import MnistDataset
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--device", default="cpu", help="학습에 사용되는 장치")
+args = parser.parse_args()
 
 
 def predict(test_data: Dataset, model: nn.Module, device: str) -> None:
@@ -26,12 +33,11 @@ def predict(test_data: Dataset, model: nn.Module, device: str) -> None:
         print(f'Predicted: "{predicted}", Actual: "{actual}"')
 
 
-def test():
+def test(device):
     num_classes = 10
 
-    test_data = MnistDataset("./data/MNIST - JPG - testing", transform=None)
+    test_data = MnistDataset("./data/MNIST Dataset JPG format/MNIST - JPG - testing", transform=None)
     # print(test_data[0][0].shape)
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model = NeuralNetwork(num_classes=num_classes).to(device)
     model.load_state_dict(torch.load('mnist-net.pth'))
 
@@ -39,4 +45,4 @@ def test():
 
 
 if __name__ == "__main__":
-    test()
+    test(device=args.device)

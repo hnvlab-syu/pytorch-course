@@ -1,3 +1,5 @@
+import argparse
+
 import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader
@@ -6,6 +8,11 @@ from torchvision import transforms
 from src.dataset import Cifar10Dataset
 from src.model import LeNet
 from src.utils import split_dataset
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--device", default="cpu", help="학습에 사용되는 장치")
+args = parser.parse_args()
 
 
 def train_one_epoch(dataloader: DataLoader, device, model: nn.Module, loss_fn: nn.Module, optimizer) -> None:
@@ -72,7 +79,7 @@ def val_one_epoch(dataloader: DataLoader, device, model: nn.Module, loss_fn: nn.
     print(f'Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n')
 
 
-def train() -> None:
+def train(device) -> None:
     """학습/추론 파이토치 파이프라인입니다.
 
     :param batch_size: 학습 및 추론 데이터셋의 배치 크기
@@ -112,8 +119,6 @@ def train() -> None:
     train_dataloader = DataLoader(training_data, batch_size=batch_size, num_workers=0)
     test_dataloader = DataLoader(test_data, batch_size=batch_size, num_workers=0)
 
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
     model = LeNet(num_classes=num_classes).to(device)
 
     loss_fn = nn.CrossEntropyLoss()
@@ -130,4 +135,4 @@ def train() -> None:
 
 
 if __name__ == '__main__':
-    train()
+    train(device=args.device)

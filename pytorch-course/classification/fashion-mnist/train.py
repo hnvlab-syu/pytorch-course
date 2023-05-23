@@ -1,8 +1,17 @@
+import argparse
+
 import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader
 
+from src.dataset import FashionMnistDataset
 from src.model import NeuralNetwork
+from src.utils import split_dataset
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--device", default="cpu", help="학습에 사용되는 장치")
+args = parser.parse_args()
 
 
 def train_one_epoch(dataloader: DataLoader, device: str, model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Optimizer) -> None:
@@ -24,6 +33,7 @@ def train_one_epoch(dataloader: DataLoader, device: str, model: nn.Module, loss_
     for batch, (images, targets) in enumerate(dataloader):
         images = images.to(device)
         targets = targets.to(device)
+        targets = torch.flatten(targets)
 
         preds = model(images)
         loss = loss_fn(preds, targets)
@@ -59,6 +69,7 @@ def val_one_epoch(dataloader: DataLoader, device: str, model: nn.Module, loss_fn
         for images, targets in dataloader:
             images = images.to(device)
             targets = targets.to(device)
+            targets = torch.flatten(targets)
 
             preds = model(images)
 
@@ -69,15 +80,28 @@ def val_one_epoch(dataloader: DataLoader, device: str, model: nn.Module, loss_fn
     print(f'Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n')
 
 
-def train():
+def train(device):
+    image_dir = 'data/fashion-mnist/images'
+    csv_path = 'data/fashion-mnist/answers.csv'
+    train_csv_path = 'data/fashion-mnist/train_answer.csv'
+    test_csv_path = 'data/fashion-mnist/test_answer.csv'
+
     num_classes = 10
     batch_size = 32
     epochs = 5
     lr = 1e-3
 
-    training_data = 
+    split_dataset(csv_path)
 
-    test_data = 
+    training_data = FashionMnistDataset(
+        image_dir,
+        train_csv_path,
+    )
+
+    test_data = FashionMnistDataset(
+        image_dir,
+        test_csv_path,
+    )
 
     train_dataloader = DataLoader(training_data, batch_size=batch_size, num_workers=0)
     test_dataloader = DataLoader(test_data, batch_size=batch_size, num_workers=0)
@@ -97,3 +121,7 @@ def train():
 
     torch.save(model.state_dict(), 'fashion-mnist-net.pth')
     print('Saved PyTorch Model State to fashion-mnist-net.pth')
+
+
+if __name__ == '__main__':
+    train(args.device)

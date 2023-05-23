@@ -93,8 +93,8 @@ def train(device: str):
     :param epochs: 전체 학습 데이터셋을 훈련하는 횟수
     :type epochs: int
     """
-    trainset = MnistDataset("./data/MNIST - JPG - training")
-    testset = MnistDataset("./data/MNIST - JPG - testing")
+    trainset = MnistDataset("./data/MNIST Dataset JPG format/MNIST - JPG - training")
+    testset = MnistDataset("./data/MNIST Dataset JPG format/MNIST - JPG - testing")
 
     train_loader = DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
     test_loader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
