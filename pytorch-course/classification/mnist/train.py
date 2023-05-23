@@ -1,9 +1,16 @@
+import argparse
+
 import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader
 
 from src.model import NeuralNetwork
 from src.dataset import MnistDataset
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--device", default="cpu", help="학습에 사용되는 장치")
+args = parser.parse_args()
 
 
 def train_one_epoch(dataloader: DataLoader, device: str, model: nn.Module, loss_fn: nn.Module, optimizer) -> None:
@@ -110,4 +117,4 @@ def train(device: str):
 
 
 if __name__ == "__main__":
-    train("cuda")
+    train(device=args.device)
