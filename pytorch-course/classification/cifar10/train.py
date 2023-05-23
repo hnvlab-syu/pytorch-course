@@ -5,6 +5,7 @@ from torchvision import transforms
 
 from src.dataset import Cifar10Dataset
 from src.model import LeNet
+from src.utils import split_dataset
 
 
 def train_one_epoch(dataloader: DataLoader, device, model: nn.Module, loss_fn: nn.Module, optimizer) -> None:
@@ -79,13 +80,17 @@ def train() -> None:
     :param epochs: 전체 학습 데이터셋을 훈련하는 횟수
     :type epochs: int
     """
-    image_dir = '../../Downloads/cifar-10/train'
-    label_path = '../../Downloads/cifar-10/trainLabels.csv'
+    image_dir = 'data/train'
+    csv_path = 'data/trainLabels.csv'
+    train_csv_path = 'data/train_answer.csv'
+    test_csv_path = 'data/test_answer.csv'
 
     num_classes = 10
     batch_size = 32
     epochs = 5
     lr = 1e-3
+
+    split_dataset(csv_path)
 
     transform = transforms.Compose([
         transforms.ToTensor(),
@@ -94,13 +99,13 @@ def train() -> None:
 
     training_data = Cifar10Dataset(
         image_dir,
-        label_path,
+        train_csv_path,
         transform=transform
     )
 
     test_data = Cifar10Dataset(
         image_dir,
-        label_path,
+        test_csv_path,
         transform=transform
     )
 

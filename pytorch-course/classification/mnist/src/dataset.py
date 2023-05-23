@@ -32,6 +32,7 @@ class MnistDataset(Dataset):
         label = torch.LongTensor([int(label)])
         return image, label
 
+
 if __name__ == "__main__":
     dataset = MnistDataset(data_dir='./data/MNIST - JPG - training', transform=None)
     print(len(dataset))

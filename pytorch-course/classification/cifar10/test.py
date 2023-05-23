@@ -1,9 +1,11 @@
 import torch
 from torch import nn
 from torch.utils.data import Dataset
+from torchvision import transforms
 
+from src.dataset import Cifar10Dataset
 from src.model import LeNet
-from src.utils import CLASSES
+from src.utils import CLASSES, split_dataset
 
 
 def predict(test_data: Dataset, model: nn.Module) -> None:
@@ -25,11 +27,19 @@ def predict(test_data: Dataset, model: nn.Module) -> None:
 
 
 def test():
+    image_dir = 'data/train'
+    test_csv_path = 'data/test_answer.csv'
+
     num_classes = 10
+
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    ])
 
     test_data = Cifar10Dataset(
         image_dir,
-        label_path,
+        test_csv_path,
         transform=transform
     )
 
@@ -37,3 +47,7 @@ def test():
     model.load_state_dict(torch.load('cifar-net-lenet.pth'))
 
     predict(test_data, model)
+
+
+if __name__ == '__main__':
+    test()

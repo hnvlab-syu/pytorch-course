@@ -1,10 +1,7 @@
-from glob import glob
 import os
-import pickle
+import random
 
-from PIL import Image
 import pandas as pd
-from tqdm import tqdm
 
 
 CLASSES = [
@@ -21,35 +18,28 @@ CLASSES = [
 ]
 
 
-def unpickle(file):
-    with open(file, 'rb') as fo:
-        data = pickle.load(fo, encoding='bytes')
-    return data
-
-
-def save_data(paths, save_dir, mode):
-    os.makedirs(os.path.join(save_dir, f'{mode}/images'), exist_ok=True)
-
-    image_id = 0
-    labels = []
-    for data_path in paths:
-        batch = unpickle(data_path)
-        labels.extend(batch[b'labels'])
-        for data in tqdm(batch[b'data']):
-            Image.fromarray(data.reshape(32, 32, 3)).save(os.path.join(save_dir, f'{mode}/images', f'{image_id}.jpg'))
-            image_id += 1
-
-    label_df = pd.DataFrame(labels, columns=['label'])
-    label_df.to_csv(os.path.join(save_dir, f'{mode}_labels.csv'))
-
-
-def save_all_data(data_dir, save_dir):
-    train_paths = glob(os.path.join(data_dir, 'data_batch_*'))
-    test_paths = [os.path.join(data_dir, 'test_batch')]
+def split_dataset(csv_path: os.PathLike, split_rate: float = 0.2) -> None:
+    """Dirty-MNIST 데이터셋을 비율에 맞춰 train / test로 나눕니다.
     
-    save_data(train_paths, save_dir, 'train')
-    save_data(test_paths, save_dir, 'test')        
+    :param path: Dirty-MNIST 데이터셋 경로
+    :type path: os.PathLike
+    :param split_rate: train과 test로 데이터 나누는 비율
+    :type split_rate: float
+    """
+    root_dir = os.path.dirname(csv_path)
 
+    df = pd.read_csv(csv_path)
+    size = len(df)
+    indices = list(range(size))
 
-# if __name__ == '__main__':
-#     save_all_data('pytorch-course/classification/cifar10/data/cifar-10-batches-py', 'pytorch-course/classification/cifar10/image_data')
+    random.shuffle(indices)
+
+    split_point = int(split_rate * size)
+
+    test_ids = indices[:split_point]
+    train_ids = indices[split_point:]
+
+    test_df = df.loc[test_ids]
+    test_df.to_csv(os.path.join(root_dir, 'test_answer.csv'), index=False)
+    train_df = df.loc[train_ids]
+    train_df.to_csv(os.path.join(root_dir, 'train_answer.csv'), index=False)
