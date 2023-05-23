@@ -1,3 +1,4 @@
+import argparse
 import os
 import random
 import shutil
@@ -14,6 +15,11 @@ from torchvision.models.detection import fasterrcnn_resnet50_fpn
 
 from src.dataset import collate_fn, WheatDataset
 from src.utils import split_dataset, MeanAveragePrecision
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--device", default="cpu", help="학습에 사용되는 장치")
+args = parser.parse_args()
 
 
 def visualize_dataset(image_dir: os.PathLike, csv_path: os.PathLike, save_dir: os.PathLike, n_images: int = 10) -> None:
@@ -60,7 +66,7 @@ def visualize_dataset(image_dir: os.PathLike, csv_path: os.PathLike, save_dir: o
                 x1, y1,
                 category_id,
                 c='white',
-                size=10,
+                size=5,
                 path_effects=[pe.withStroke(linewidth=2, foreground='green')],
                 family='sans-serif',
                 weight='semibold',
@@ -166,7 +172,7 @@ def val_one_epoch(dataloader: DataLoader, device, model: nn.Module, metric) -> N
     print()
 
 
-def train() -> None:
+def train(device) -> None:
     """학습/추론 파이토치 파이프라인입니다.
 
     :param batch_size: 학습 및 추론 데이터셋의 배치 크기
@@ -174,13 +180,13 @@ def train() -> None:
     :param epochs: 전체 학습 데이터셋을 훈련하는 횟수
     :type epochs: int
     """
-    csv_path = 
-    train_image_dir = 
-    train_csv_path = 
-    test_csv_path = 
+    csv_path = 'data/global-wheat-detection/train.csv'
+    train_image_dir = 'data/global-wheat-detection/train'
+    train_csv_path = 'data/global-wheat-detection/train_answer.csv'
+    test_csv_path = 'data/global-wheat-detection/test_answer.csv'
 
     num_classes = 1
-    batch_size = 32
+    batch_size = 16
     epochs = 5
     lr = 1e-3
 
@@ -200,10 +206,8 @@ def train() -> None:
         transform=transforms.ToTensor(),
     )
 
-    train_dataloader = DataLoader(training_data, batch_size=batch_size, shuffle=True, num_workers=16, collate_fn=collate_fn)
-    test_dataloader = DataLoader(test_data, batch_size=batch_size, num_workers=8, collate_fn=collate_fn)
-    
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    train_dataloader = DataLoader(training_data, batch_size=batch_size, shuffle=True, num_workers=0, collate_fn=collate_fn)
+    test_dataloader = DataLoader(test_data, batch_size=batch_size, num_workers=0, collate_fn=collate_fn)
     
     model = fasterrcnn_resnet50_fpn(num_classes=num_classes+1).to(device)
     
@@ -218,3 +222,7 @@ def train() -> None:
 
     torch.save(model.state_dict(), 'wheat-faster-rcnn.pth')
     print('Saved PyTorch Model State to wheat-faster-rcnn.pth')
+
+
+if __name__ == '__main__':
+    train(args.device)

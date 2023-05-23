@@ -4,7 +4,7 @@ import json
 import os
 
 import pandas as pd
-from pycocotools import COCO
+from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 
 

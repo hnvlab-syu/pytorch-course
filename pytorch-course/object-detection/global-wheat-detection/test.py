@@ -1,3 +1,4 @@
+import argparse
 import os
 import random
 import shutil
@@ -14,6 +15,11 @@ from torchvision.models.detection import fasterrcnn_resnet50_fpn
 from torchvision import transforms
 
 from src.dataset import WheatDataset
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--device", default="cpu", help="학습에 사용되는 장치")
+args = parser.parse_args()
 
 
 def visualize_predictions(testset: Dataset, device: str, model: nn.Module, save_dir: os.PathLike, conf_thr: float = 0.1, n_images: int = 10) -> None:
@@ -70,7 +76,7 @@ def visualize_predictions(testset: Dataset, device: str, model: nn.Module, save_
                     x1, y1,
                     f'{classes[category_id-1]}: {score:.2f}',
                     c='white',
-                    size=10,
+                    size=5,
                     path_effects=[pe.withStroke(linewidth=2, foreground='green')],
                     family='sans-serif',
                     weight='semibold',
@@ -87,9 +93,9 @@ def visualize_predictions(testset: Dataset, device: str, model: nn.Module, save_
         plt.clf()
 
 
-def test():
-    train_image_dir = 
-    test_csv_path = 
+def test(device):
+    train_image_dir = 'data/global-wheat-detection/train'
+    test_csv_path = 'data/global-wheat-detection/test_answer.csv'
 
     num_classes = 1
 
@@ -99,9 +105,13 @@ def test():
         transform=transforms.ToTensor(),
     )
 
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model = fasterrcnn_resnet50_fpn(num_classes=num_classes+1)
     model.load_state_dict(torch.load('wheat-faster-rcnn.pth'))
     model.to(device)
 
     visualize_predictions(test_data, device, model, 'examples/global-wheat-detection/faster-rcnn')
+    print('Saved in ./examples/global-wheat-detection/faster-rcnn')
+
+
+if __name__ == '__main__':
+    test(args.device)
