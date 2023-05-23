@@ -4,3 +4,5 @@ __pycache__
 pytorch-course/*/*/data/*
 !pytorch-course/*/*/data/README.md
 !pytorch-course/*/*/data/.gitkeep
+
+*.pth
