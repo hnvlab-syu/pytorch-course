@@ -1,11 +1,24 @@
 from glob import glob
 import os
-import shutil
 import pickle
 
 from PIL import Image
 import pandas as pd
 from tqdm import tqdm
+
+
+CLASSES = [
+    'airplane',
+    'automobile',
+    'bird',
+    'cat',
+    'deer',
+    'dog',
+    'frog',
+    'horse',
+    'ship',
+    'truck',
+]
 
 
 def unpickle(file):

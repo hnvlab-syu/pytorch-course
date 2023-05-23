@@ -79,8 +79,8 @@ def train() -> None:
     :param epochs: 전체 학습 데이터셋을 훈련하는 횟수
     :type epochs: int
     """
-    image_dir = 'C:\\Users\\leeye\\Downloads\\cifar-10\\train'
-    label_path = 'C:\\Users\\leeye\\Downloads\\cifar-10\\trainLabels.csv'
+    image_dir = '../../Downloads/cifar-10/train'
+    label_path = '../../Downloads/cifar-10/trainLabels.csv'
 
     num_classes = 10
     batch_size = 32
