@@ -16,11 +16,16 @@ def split_dataset(csv_path: os.PathLike, split_rate: float = 0.2) -> None:
     :param split_rate: train과 test로 데이터 나누는 비율
     :type split_rate: float
     """
+    del_data_list = ['3fe6394cd']
+    grouped_list = []
+
     root_dir = os.path.dirname(csv_path)
     df = pd.read_csv(csv_path)
     df = df.sample(frac=1).reset_index(drop=True)
     grouped = df.groupby(by='image_id')
-    grouped_list = [group for _, group in grouped] # image_id를 기준으로 그룹화 후 그룹화된 데이터를 리스트로 변환
+    for i, group in grouped:
+        if i in del_data_list: continue
+        grouped_list.append(group)
     
     split_point = int(split_rate * len(grouped))
     train_ids = grouped_list[split_point:]
