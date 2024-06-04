@@ -1,3 +1,4 @@
+import torch
 import torchvision
 from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
 from torchvision.models.detection import FasterRCNN
@@ -17,9 +18,9 @@ class DetectionModel:
                                                             sampling_ratio=2)
 
     def make_model(self):
-        self.model = FasterRCNN(backbone=self.backbone,
-                                num_classes=self.num_classes+1,
-                                rpn_anchor_generator=self.anchor_generator,
-                                box_roi_pool=self.roi_pooler)
+            self.model = FasterRCNN(backbone=self.backbone,
+                                    num_classes=self.num_classes+1,
+                                    rpn_anchor_generator=self.anchor_generator,
+                                    box_roi_pool=self.roi_pooler)
         
-        return self.model
+            return self.model
