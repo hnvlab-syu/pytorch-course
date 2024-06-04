@@ -2,6 +2,7 @@ import argparse
 import os
 import random
 import shutil
+import wandb
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -12,14 +13,9 @@ import torch
 from torch import nn
 from torch.utils.data import Dataset
 
-from src.dataset import WheatDataset
+from src.dataset import WheatDataset, get_transform
 from src.model import DetectionModel
 
-import numpy as np
-import albumentations as A
-from albumentations.pytorch import ToTensorV2
-
-import wandb
 
 
 parser = argparse.ArgumentParser()
@@ -109,18 +105,10 @@ def test(device, image_size):
 
     num_classes = 1
 
-    bbox_params = A.BboxParams(
-                format='coco',
-                label_fields=['labels']
-    )
-
     test_data = WheatDataset(
         image_dir=train_image_dir,
         csv_path=test_csv_path,
-        transform=A.Compose([
-            A.Resize(width=image_size, height=image_size),
-            ToTensorV2(),
-        ], bbox_params=bbox_params),
+        transform=get_transform(state='inference', image_size=image_size)
     )
 
     model = DetectionModel(num_classes=num_classes).make_model()

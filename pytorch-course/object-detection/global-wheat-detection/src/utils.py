@@ -3,9 +3,15 @@ from collections import defaultdict
 import json
 import os
 
+import numpy as np
 import pandas as pd
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
+
+import torch
+from copy import deepcopy
+from ultralytics.utils import DEFAULT_CFG, LOGGER, colorstr
+from ultralytics.utils.torch_utils import profile
 
 
 def split_dataset(csv_path: os.PathLike, split_rate: float = 0.2) -> None:
@@ -16,7 +22,7 @@ def split_dataset(csv_path: os.PathLike, split_rate: float = 0.2) -> None:
     :param split_rate: train과 test로 데이터 나누는 비율
     :type split_rate: float
     """
-    del_data_list = ['3fe6394cd']
+    del_data_list = ['3fe6394cd', '41457a646']
     grouped_list = []
 
     root_dir = os.path.dirname(csv_path)
@@ -132,3 +138,83 @@ class MeanAveragePrecision:
         coco_eval.summarize()
         
         return coco_eval.stats
+    
+    
+def check_train_batch_size(model, imgsz=640):
+    """
+    code by https://github.com/ultralytics/ultralytics/blob/main/ultralytics/utils/autobatch.py
+
+    Args:
+        model (torch.nn.Module): YOLO model to check batch size for.
+        imgsz (int): Image size used for training.
+        amp (bool): If True, use automatic mixed precision (AMP) for training.
+
+    Returns:
+        (int): Optimal batch size computed using the autobatch() function.
+    """
+
+    with torch.cuda.amp.autocast():
+        return autobatch(deepcopy(model).eval(), imgsz)  # compute optimal batch size
+    
+
+def autobatch(model, imgsz=640, fraction=0.80, batch_size=DEFAULT_CFG.batch):
+    """
+    code by https://github.com/ultralytics/ultralytics/blob/main/ultralytics/utils/autobatch.py
+
+    Args:
+        model (torch.nn.module): YOLO model to compute batch size for.
+        imgsz (int, optional): The image size used as input for the YOLO model. Defaults to 640.
+        fraction (float, optional): The fraction of available CUDA memory to use. Defaults to 0.60.
+        batch_size (int, optional): The default batch size to use if an error is detected. Defaults to 16.
+
+    Returns:
+        (int): The optimal batch size.
+    """
+    
+    # Check device
+    prefix = colorstr("AutoBatch: ")
+    LOGGER.info(f"{prefix}Computing optimal batch size for imgsz={imgsz}")
+    device = next(model.parameters()).device
+
+    # 특정 상황 처리
+    if device.type == "cpu":
+        LOGGER.info(f"{prefix}CUDA not detected, using default CPU batch-size {batch_size}")
+        return batch_size
+    if torch.backends.cudnn.benchmark:
+        LOGGER.info(f"{prefix} ⚠️ Requires torch.backends.cudnn.benchmark=False, using default batch-size {batch_size}")
+        return batch_size
+
+    gb = 1 << 30  # bytes to GiB (1024 ** 3)
+    d = str(device).upper()
+    properties = torch.cuda.get_device_properties(device)
+    t = properties.total_memory / gb
+    r = torch.cuda.memory_reserved(device) / gb
+    a = torch.cuda.memory_allocated(device) / gb
+    f = t - (r + a)
+    LOGGER.info(f"{prefix}{d} ({properties.name}) {t:.2f}G total, {r:.2f}G reserved, {a:.2f}G allocated, {f:.2f}G free")
+
+    # Profile batch sizes
+    batch_sizes = [1, 2, 4, 8, 16]
+    try:
+        img = [torch.empty(b, 3, imgsz, imgsz, dtype=torch.float16) for b in batch_sizes]
+        results = profile(img, model, n=3, device=device)
+
+        # Fit a solution
+        y = [x[2] for x in results if x]
+        p = np.polyfit(batch_sizes[:len(y)], y, deg=1)
+        b = int((f * fraction - p[1]) / p[0])
+        if None in results:  # some sizes failed
+            i = results.index(None)
+            if b >= batch_sizes[i]:
+                b = batch_sizes[max(i - 1, 0)]
+        if b < 1 or b > 1024:  # b outside of safe range
+            b = batch_size
+            LOGGER.info(f"{prefix}WARNING ⚠️ CUDA anomaly detected, using default batch-size {batch_size}.")
+
+        fraction = (np.polyval(p, b) + r + a) / t  # actual fraction predicted
+        LOGGER.info(f"{prefix}Using batch-size {b} for {d} {t * fraction:.2f}G/{t:.2f}G ({fraction * 100:.0f}%) ✅")
+        return b
+    except Exception as e:
+        LOGGER.info(f"{prefix}WARNING ⚠️ error detected: {e},  using default batch-size {batch_size}.")
+        return batch_size
+        
