@@ -1,6 +1,7 @@
 .vscode
 __pycache__
 
+wandb/
 examples/
 pytorch-course/*/*/data/*
 !pytorch-course/*/*/data/README.md
