@@ -15,8 +15,21 @@ parser.add_argument("--device", default="cpu", help="학습에 사용되는 장�
 args = parser.parse_args()
 
 
-# 테스트 이미지 배치에 대한 예측을 로그하기 위한 편리한 함수
 def log_test_predictions(images, labels, outputs, predicted, test_table, log_counter):
+    """
+    Logging valid images predictions in a wandb.Table
+
+    Args:
+        images (torch.Tensor): validation images
+        labels (torch.Tensor): labels of the validation images
+        outputs (torch.Tensor): model results for validation images
+        predicted (torch.Tensor): label of highest value in model results 
+        test_table (wandb.Table): table for validation visualization
+        log_counter (int): current epoch
+
+    Returns:
+        None
+    """
     # 모든 클래스에 대한 신뢰도 점수 얻기
     scores = F.softmax(outputs.data, dim=1)
     log_scores = scores.cpu().numpy()
@@ -33,19 +46,20 @@ def log_test_predictions(images, labels, outputs, predicted, test_table, log_cou
         _id += 1
 
 
-def train_one_epoch(dataloader: DataLoader, device: str, model: nn.Module, loss_fn: nn.Module, optimizer, epoch: int) -> None:
-    """MNIST 데이터셋으로 뉴럴 네트워크 훈련
-    
-    param dataloader: 파이토치 데이터로더
-    param dataloader: DataLoader
-    param device: 훈련에 사용되는 장치
-    param device: str
-    param model: 훈련에 사용되는 모델
-    param model: nn.Module
-    param loss_fn: 훈련에 사용되는 오차함수
-    param loss_fn: nn.Module
-    param optimizer: 훈련에 사용되는 옵티마이저
-    param optimizer: torch.optim.Optimizer
+def train_one_epoch(dataloader, device, model, loss_fn, optimizer, epoch):
+    """
+    Training NeuralNetwork on the MNIST dataset
+
+    Args:
+        dataloader (DataLoader): dataloader for training
+        device (str): device for training
+        model (nn.Module): model for training
+        loss_fn (nn.Module): loss function for training
+        optimizer (optim.Optimizer): optimizer for training
+        epoch (int): current epoch
+
+    Returns:
+        None
     """
 
     size = len(dataloader.dataset)
@@ -71,17 +85,20 @@ def train_one_epoch(dataloader: DataLoader, device: str, model: nn.Module, loss_
             print(f'loss: {loss:>7f} [{current:5d}/{size:>5d}]')
 
 
-def valid_one_epoch(dataloader: DataLoader, device: str, model: nn.Module, loss_fn: nn.Module, epoch: int, test_table: wandb.Table) -> None:
-    """MNIST 데이터셋으로 뉴럴 네트워크의 성능을 테스트합니다.
+def valid_one_epoch(dataloader, device, model, loss_fn, epoch, test_table):
+    """
+    Test NeuralNetwork on the MNIST dataset
 
-    :param dataloader: 파이토치 데이터로더
-    :type dataloader: DataLoader
-    :param device: 훈련에 사용되는 장치
-    :type device: str
-    :param model: 훈련에 사용되는 모델
-    :type model: nn.Module
-    :param loss_fn: 훈련에 사용되는 오차 함수
-    :type loss_fn: nn.Module
+    Args:
+        dataloader (DataLoader): dataloader for validation
+        device (str): device for validation
+        model (nn.Module): model for validation
+        loss_fn (nn.Module): loss function for validation
+        epoch (int): current epoch
+        test_table (wandb.Table): table for validation visualization
+
+    Returns:
+        None
     """
 
     size = len(dataloader.dataset)
@@ -112,28 +129,22 @@ def valid_one_epoch(dataloader: DataLoader, device: str, model: nn.Module, loss_
 
 
 def train(device: str):
-    # 하이퍼파라미터 값 설정
+    """
+    Pytorch training/validation pipeline
+
+    Args:
+        device (str): device for training and validation
+
+    Returns:
+        None
+    """    
     num_classes = 10
     batch_size = 32
     epochs = 10
     lr = 1e-3
 
-    """학습/추론 파이토치 파이프라인
-    
-    param batch_size: 학습 및 추론 데이터셋의 배치 크기
-    type batch_size: int
-    param epochs: 전체 학습 데이터셋 훈련 횟수
-    type epochs: int
-    """
-
     data_dir = 'data'
     train_data, test_data = get_mnist(data_dir)
-    # print("train_data len:", len(train_data))
-    # print("test_data len:", len(test_data))
-    # print("data[0]:", len(train_data[0]), "(img, label)")
-    # print("img:", len(train_data[0][0]), "(img channel)")
-    # print("img shape:", train_data[0][0][0].shape, "(H, W)")
-    # print("label:", train_data[0][1], "(label)")
 
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=0)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=0)
