@@ -2,7 +2,7 @@ import argparse
 import wandb
 
 import torch
-from torch import nn, optim
+from torch import nn, optim, Tensor
 from torch.utils.data import DataLoader
 from torch.nn import functional as F
 
@@ -15,15 +15,15 @@ parser.add_argument("--device", default="cpu", help="학습에 사용되는 장�
 args = parser.parse_args()
 
 
-def log_test_predictions(images, labels, outputs, predicted, test_table, log_counter):
+def log_test_predictions(images: Tensor, labels: Tensor, outputs: Tensor, predicted: Tensor, test_table: wandb.Table, log_counter: int) -> None:
     """
     Logging valid images predictions in a wandb.Table
 
     Args:
-        images (torch.Tensor): validation images
-        labels (torch.Tensor): labels of the validation images
-        outputs (torch.Tensor): model results for validation images
-        predicted (torch.Tensor): label of highest value in model results 
+        images (Tensor): validation images
+        labels (Tensor): labels of the validation images
+        outputs (Tensor): model results for validation images
+        predicted (Tensor): label of highest value in model results 
         test_table (wandb.Table): table for validation visualization
         log_counter (int): current epoch
 
@@ -46,7 +46,7 @@ def log_test_predictions(images, labels, outputs, predicted, test_table, log_cou
         _id += 1
 
 
-def train_one_epoch(dataloader, device, model, loss_fn, optimizer, epoch):
+def train_one_epoch(dataloader: DataLoader, device: str, model: nn.Module, loss_fn: nn.Module, optimizer: optim.Optimizer, epoch: int) -> None:
     """
     Training NeuralNetwork on the MNIST dataset
 
@@ -85,7 +85,7 @@ def train_one_epoch(dataloader, device, model, loss_fn, optimizer, epoch):
             print(f'loss: {loss:>7f} [{current:5d}/{size:>5d}]')
 
 
-def valid_one_epoch(dataloader, device, model, loss_fn, epoch, test_table):
+def valid_one_epoch(dataloader: DataLoader, device: str, model: nn.Module, loss_fn: nn.Module, epoch: int, test_table: wandb.Table) -> None:
     """
     Test NeuralNetwork on the MNIST dataset
 
@@ -128,7 +128,7 @@ def valid_one_epoch(dataloader, device, model, loss_fn, epoch, test_table):
     wandb.log({"test_loss": test_loss, "test_accuracy": correct, "epoch": epoch})
 
 
-def train(device: str):
+def train(device: str) -> None:
     """
     Pytorch training/validation pipeline
 

@@ -15,7 +15,7 @@ parser.add_argument("--device", default="cpu", help="학습에 사용되는 장�
 args = parser.parse_args()
 
 
-def predict(test_data, model, device):
+def predict(test_data: Dataset, model: nn.Module, device: str) -> None:
     """
     Prediction the example image from MNIST dataset using a trained neural network
 
@@ -45,7 +45,7 @@ def predict(test_data, model, device):
         print(f'Predicted: "{predicted}", Acutal: "{actual}"')
         
         
-def test(device):
+def test(device: str) -> None:
     """
     Pytorch test pipeline
 

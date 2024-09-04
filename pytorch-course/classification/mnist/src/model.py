@@ -9,7 +9,7 @@ class NeuralNetwork(nn.Module):
         linear_relu_stack (nn.Sequential): stack of layers for classification.
     """
 
-    def __init__(self, num_classes):
+    def __init__(self, num_classes: int):
         """
         Layers initialization to be used in the forward.
 
@@ -23,7 +23,7 @@ class NeuralNetwork(nn.Module):
             nn.ReLU(),
             nn.Linear(512, 512),
             nn.ReLU(),
-            nn.Linear(512, num_classes),            
+            nn.Linear(512, num_classes),
         )
 
     def forward(self, x: Tensor) -> Tensor:
