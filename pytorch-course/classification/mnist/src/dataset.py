@@ -1,8 +1,9 @@
 from torchvision import datasets
 from torchvision.transforms import ToTensor
+from typing import Tuple
 
 
-def get_mnist(dir='data'):
+def get_mnist(dir: str = 'data') -> Tuple[datasets.VisionDataset, datasets.VisionDataset]:
     """
     get mnist dataset
 
