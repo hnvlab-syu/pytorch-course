@@ -11,7 +11,7 @@ from src.model import NeuralNetwork
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--device", default="cpu", help="학습에 사용되는 장치")
+parser.add_argument("--device", default="cpu", help="device for training")
 args = parser.parse_args()
 
 
