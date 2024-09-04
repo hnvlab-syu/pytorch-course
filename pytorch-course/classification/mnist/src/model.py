@@ -1,10 +1,21 @@
 from torch import nn, Tensor
 
 class NeuralNetwork(nn.Module):
-    """학습과 추론에 사용되는 간단한 뉴럴 네트워크"""
+    """
+    Simple neural network for training and inference
 
-    # 모델 초기화
-    def __init__(self, num_classes: int) -> None:
+    Attributes:
+        flatten (nn.Flatten): layer for flattening input images.
+        linear_relu_stack (nn.Sequential): stack of layers for classification.
+    """
+
+    def __init__(self, num_classes):
+        """
+        Layers initialization to be used in the forward.
+
+        Args:
+            num_classes (int): number of output classes for classification.
+        """
         super().__init__()
         self.flatten = nn.Flatten()
         self.linear_relu_stack = nn.Sequential(
@@ -15,15 +26,16 @@ class NeuralNetwork(nn.Module):
             nn.Linear(512, num_classes),            
         )
 
-    # 모델 생성
     def forward(self, x: Tensor) -> Tensor:
-        """순전파 진행하는 함수
-        
-        param x: 입력 이미지
-        type x: Tensor
-        return: 입력 이미지에 대한 예측값
-        rtype: Tensor
         """
+        Forward of the neural network.
+
+        Args:
+            x (Tensor): batch of input images.
+
+        Returns:
+            Tensor: outputs of the neural network for each class.
+        """    
 
         x = self.flatten(x)
         logits = self.linear_relu_stack(x)
