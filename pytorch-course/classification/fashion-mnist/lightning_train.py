@@ -68,9 +68,9 @@ def run(args):
     num_workers = args.num_workers
 
     if len(args.devices) == 1:
-        args.devices = [int(devices)]
+        devices = [int(args.devices)]
     else:
-        devices = list(map(int, devices.split(',')))
+        devices = list(map(int, args.devices.split(',')))
 
     dataset = DatasetModule(batch_size=batch_size, num_workers=num_workers)
     model = LitTrainingModule(create_model(num_classes), lr=lr)
@@ -88,7 +88,7 @@ def run(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--devices', type=str, nargs='+', default=0)
+    parser.add_argument('--devices', type=str, nargs='+', default="0")
     parser.add_argument("--batch_size", type=int, default=32, help="학습 및 검증에 사용할 배치 크기")
     parser.add_argument("--epochs", type=int, default=10, help="학습 epochs")
     parser.add_argument("--lr", type=float, default=1e-3, help="learning rate")
