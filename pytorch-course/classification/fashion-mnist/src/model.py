@@ -26,3 +26,8 @@ class NeuralNetwork(nn.Module):
         x = self.flatten(x)
         logits = self.linear_relu_stack(x)
         return logits
+    
+
+def create_model(num_classes):
+    model = NeuralNetwork(num_classes=num_classes)
+    return model.cuda()
