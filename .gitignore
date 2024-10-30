@@ -9,3 +9,11 @@ pytorch-course/*/*/data/*
 !pytorch-course/*/*/data/.gitkeep
 
 *.pth
+*.pkl
+*.pt
+*.ckpt
+*.csv
+*.log
+
+pytorch-course/*/*/*/dataset/
+pytorch-course/*/*/*/hydra-template/logs/
