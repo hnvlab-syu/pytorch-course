@@ -22,7 +22,6 @@ class ClassficationModel(L.LightningModule):
         self.losses = []
         self.labels = []
         self.predictions = []
-        self.save_hyperparameters()
 
     def forward(self, inputs):
         return self.model(inputs)
@@ -31,7 +30,6 @@ class ClassficationModel(L.LightningModule):
         inputs, target = batch
         output = self.model(inputs)
         loss = self.loss_fn(output, target)
-        # self.log_dict({"train_loss": loss}, on_step=True, prog_bar=True, batch_size=self.batch_size)
         self.log('train_loss', loss)
         return loss
     
@@ -58,9 +56,9 @@ class ClassficationModel(L.LightningModule):
         labels = labels.tolist()
         predictions = predictions.tolist()
         loss = sum(self.losses)/len(self.losses)
+
         self.log('val_acc', acc)
         self.log('val_loss', loss)
-        # self.log_dict({"val_acc": acc, "val_loss": loss}, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         
         self.losses.clear()
         self.labels.clear()
