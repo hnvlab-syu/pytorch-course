@@ -1,13 +1,16 @@
 .vscode
 __pycache__
 lightning_logs
+wandb
+examples
+checkpoint
 
-wandb/
-examples/
+
 pytorch-course/*/*/data/*
 !pytorch-course/*/*/data/README.md
 !pytorch-course/*/*/data/.gitkeep
-pytorch-course/*/*/dataset/
+pytorch-course/*/*/dataset/*
+!pytorch-course/*/*/dataset/.gitkeep
 !pytorch-course/*/*/dataset/*.txt
 
 # Ignore model files
