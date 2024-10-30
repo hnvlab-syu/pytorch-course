@@ -7,7 +7,10 @@ examples/
 pytorch-course/*/*/data/*
 !pytorch-course/*/*/data/README.md
 !pytorch-course/*/*/data/.gitkeep
+pytorch-course/*/*/dataset/
+!pytorch-course/*/*/dataset/*.txt
 
+# Ignore model files
 *.pth
 *.pkl
 *.pt
@@ -15,5 +18,5 @@ pytorch-course/*/*/data/*
 *.csv
 *.log
 
-pytorch-course/*/*/*/dataset/
+# Ignore hydra logs
 pytorch-course/*/*/*/hydra-template/logs/
