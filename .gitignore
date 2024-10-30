@@ -15,5 +15,5 @@ pytorch-course/*/*/data/*
 *.csv
 *.log
 
-pytorch-course/*/*/*/dataset/
+pytorch-course/*/*/dataset/
 pytorch-course/*/*/*/hydra-template/logs/

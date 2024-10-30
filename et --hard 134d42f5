@@ -1,0 +1,88 @@
+* [33m434d42f5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdevelop[m[33m)[m Remove dataset folder from tracking
+* [33mf670cce8[m Apply .gitignore correctly
+* [33m273d42a7[m Fix .gitignore rules
+* [33m6d266b40[m Fix .gitignore rules
+* [33mea7821e4[m test
+* [33m30e39dbf[m test
+* [33m8a0cbddc[m test
+[31m|[m *   [33me69bb0bd[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m Merge pull request #13 from Seunghwan0828/develop
+[31m|[m [32m|[m[31m\[m  
+[31m|[m [32m|[m[31m/[m  
+[31m|[m[31m/[m[32m|[m   
+* [32m|[m [33m965b3fbc[m[33m ([m[1;31morigin/develop[m[33m)[m Add lightning-hydra-template
+[32m|[m[32m/[m  
+*   [33m6c9a452d[m Merge pull request #12 from Seunghwan0828/develop
+[34m|[m[35m\[m  
+[34m|[m * [33m6b83a82b[m new dir
+[34m|[m[34m/[m  
+*   [33m244dd1c5[m Merge pull request #11 from kty2001/main
+[36m|[m[1;31m\[m  
+[36m|[m *   [33mc7d43f6e[m Merge branch 'hnvlab-syu:master' into main
+[36m|[m [1;32m|[m[36m\[m  
+[36m|[m [1;32m|[m[36m/[m  
+[36m|[m[36m/[m[1;32m|[m   
+* [1;32m|[m   [33md119f5f0[m Merge pull request #10 from kty2001/main
+[1;34m|[m[1;35m\[m [1;32m\[m  
+[1;34m|[m [1;35m|[m * [33md9c9cbeb[m modify for training
+[1;34m|[m [1;35m|[m * [33m9465f235[m change devices format
+[1;34m|[m [1;35m|[m[1;35m/[m  
+[1;34m|[m * [33m7e4eed96[m add lightning in fashion-mnist
+[1;34m|[m * [33m2bb46fe5[m add argument type
+[1;34m|[m * [33mf2023332[m modify docstring structure
+[1;34m|[m * [33m534b1413[m modify docstring to google style
+[1;34m|[m[1;34m/[m  
+*   [33mbcde8f76[m Merge pull request #8 from kty2001/main
+[1;36m|[m[31m\[m  
+[1;36m|[m *   [33m36bb77f5[m Merge branch 'master' into main
+[1;36m|[m [32m|[m[1;36m\[m  
+[1;36m|[m [32m|[m[1;36m/[m  
+[1;36m|[m[1;36m/[m[32m|[m   
+* [32m|[m   [33mdb527b10[m Merge pull request #6 from kty2001/main
+[34m|[m[35m\[m [32m\[m  
+* [35m\[m [32m\[m   [33mccafa813[m Merge pull request #5 from kty2001/main
+[36m|[m[1;31m\[m [35m\[m [32m\[m  
+* [1;31m\[m [35m\[m [32m\[m   [33mdc868058[m Merge pull request #4 from unacanal/master
+[1;32m|[m[1;33m\[m [1;31m\[m [35m\[m [32m\[m  
+[1;32m|[m * [1;31m\[m [35m\[m [32m\[m   [33mca0db502[m Merge branch 'hnvlab-syu:master' into master
+[1;32m|[m [1;34m|[m[1;32m\[m [1;31m\[m [35m\[m [32m\[m  
+[1;32m|[m [1;34m|[m[1;32m/[m [1;31m/[m [35m/[m [32m/[m  
+[1;32m|[m[1;32m/[m[1;34m|[m [1;31m|[m [35m|[m [32m|[m   
+[1;32m|[m * [1;31m|[m [35m|[m [32m|[m [33m1f8eb288[m feat: add wandb logging
+[1;32m|[m [1;35m|[m [1;31m|[m [35m|[m * [33m2dcc60ae[m Modify mnist dataset & wandb
+[1;32m|[m [1;35m|[m [1;31m|[m [35m|[m * [33m694e062e[m modify mnist dataset
+[1;32m|[m [1;35m|[m [1;31m|[m [35m|[m[35m/[m  
+[1;32m|[m [1;35m|[m [1;31m|[m * [33m30e78a5e[m add schedulera and autobatch and amp
+[1;32m|[m [1;35m|[m [1;31m|[m[1;31m/[m  
+[1;32m|[m [1;35m|[m * [33m0641c106[m add code for rm trash data
+[1;32m|[m [1;35m|[m * [33m883f244b[m modify object-detection
+[1;32m|[m [1;35m|[m[1;32m/[m  
+[1;32m|[m[1;32m/[m[1;35m|[m   
+* [1;35m|[m   [33maebf4b88[m Merge pull request #2 from Seunghwan0828/master
+[1;35m|[m[31m\[m [1;35m\[m  
+[1;35m|[m [31m|[m[1;35m/[m  
+[1;35m|[m[1;35m/[m[31m|[m   
+[1;35m|[m * [33md76a8fd8[m Object detection update
+[1;35m|[m[1;35m/[m  
+*   [33m56f158b8[m Merge pull request #1 from kty2001/main
+[32m|[m[33m\[m  
+[32m|[m * [33mfad019d6[m modify code
+[32m|[m[32m/[m  
+* [33m27e22573[m 5/23 update readme
+* [33m27fe6724[m 5/23 update first goal
+* [33ma580af2d[m 5/23 update first goal
+* [33m18cc4aa6[m 5/23 update first goal
+* [33mc356f348[m 5/23 update cifar-10
+* [33ma64a2a1b[m 5/23 update optimizer cifar10
+* [33m5515d153[m 5/23 update cifar10
+* [33m2c199cf8[m 5/23 update -2
+* [33mdcf4d0ff[m 5/23 clear cache
+* [33ma3d88a0b[m 5/23 update -2
+*   [33md234f3fb[m Merge branch 'master' of github.com:hnvlab-syu/pytorch-course
+[34m|[m[35m\[m  
+[34m|[m * [33me69fb01e[m modified train.py added argparser
+[34m|[m * [33m712ab370[m modified dataset.py
+[34m|[m * [33mc9ec91de[m modified train.py
+[34m|[m * [33m7251d963[m modified mnist
+* [35m|[m [33m5b40f24f[m 5/23 update
+[35m|[m[35m/[m  
+* [33ma2c8db6d[m Initial commit
