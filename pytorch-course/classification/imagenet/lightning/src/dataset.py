@@ -8,6 +8,8 @@ from sklearn.model_selection import train_test_split
 from PIL import Image
 
 
+SEED = 36
+L.seed_everything(SEED)
 class ImageNetDataModule(L.LightningDataModule):
     def __init__(self, data_dir:str = '../../dataset', batch_size:int=32):
         super().__init__()
