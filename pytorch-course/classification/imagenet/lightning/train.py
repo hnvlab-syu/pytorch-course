@@ -13,6 +13,8 @@ from src.utils import rename_dir
 from src.model import create_model
 
 
+SEED = 36
+L.seed_everything(SEED)
 class ClassficationModel(L.LightningModule):
     def __init__(self, model, batch_size=32):
         super().__init__()
@@ -99,7 +101,7 @@ class ClassficationModel(L.LightningModule):
         return torch.optim.SGD(self.model.parameters(), lr=1e-3, momentum=0.9)
     
 
-def main(classification_model, data, batch, epoch, save_path, device, gpus):
+def main(classification_model, data, batch, epoch, save_path, device, gpus, precision):
     rename_dir()
     model = ClassficationModel(create_model(classification_model))
     imagenet = ImageNetDataModule(data, batch)
@@ -107,11 +109,14 @@ def main(classification_model, data, batch, epoch, save_path, device, gpus):
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    if len(gpus) == 1:
-        gpus = [int(gpus)]
-    else:
-        gpus = list(map(int, gpus.split(',')))
-
+    if device == 'gpu':
+        if len(gpus) == 1:
+            gpus = [int(gpus)]
+        else:
+            gpus = list(map(int, gpus.split(',')))
+    elif device == 'cpu':
+        gpus = 'auto'
+        precision = 32
     
     checkpoint_callback = ModelCheckpoint(
         monitor='val_acc',
@@ -130,7 +135,7 @@ def main(classification_model, data, batch, epoch, save_path, device, gpus):
         accelerator=device,
         devices=gpus,
         max_epochs=epoch,
-        precision='16-mixed',
+        precision=precision,
         logger=wandb_logger,
         callbacks=[checkpoint_callback, early_stopping],
     )
@@ -147,6 +152,7 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--save_path', dest='save', type=str, default='./checkpoint/')
     parser.add_argument('-dc', '--device', type=str, default='gpu')
     parser.add_argument('-g', '--gpus', type=str, nargs='+', default='0')
+    parser.add_argument('-p', '--precision', type=str, default='16-mixed')
     args = parser.parse_args()
     
-    main(args.model, args.data, args.batch, args.epoch, args.save, args.device, args.gpus)
+    main(args.model, args.data, args.batch, args.epoch, args.save, args.device, args.gpus, args.precision)
