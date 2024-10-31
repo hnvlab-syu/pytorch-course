@@ -1,14 +1,9 @@
 import os
-import glob
 
 from typing import Callable, Optional, Sequence, Tuple
-
-import numpy as np
 from PIL import Image
-import pandas as pd
 
 import torch
-from torch import Tensor
 from torch.utils.data import Dataset
 from torchvision import transforms
 
@@ -28,16 +23,14 @@ class ImagenetDataset(Dataset):
         target = self.class_name[index].split("-")[0]
 
         image = Image.open(os.path.join(image_id)).convert('RGB')
-        # image = np.array(image, dtype=np.float32)
-        if self.transform:
-            image = self.transform(image)
+        image = self.transform(image)
 
         target = torch.tensor(int(target))
                 
         return image, target
 
 
-def get_transform(state: str, image_size: int):
+def get_transform(state: str, image_size: int = 256):
     if state == 'train':
         transform = transforms.Compose([
             transforms.Resize((image_size, image_size)),
