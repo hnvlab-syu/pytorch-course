@@ -57,8 +57,39 @@ class ClassficationModel(L.LightningModule):
         predictions = predictions.tolist()
         loss = sum(self.losses)/len(self.losses)
 
-        self.log('val_acc', acc)
-        self.log('val_loss', loss)
+        self.log('val_epoch_acc', acc)
+        self.log('val_epoch_loss', loss)
+        
+        self.losses.clear()
+        self.labels.clear()
+        self.predictions.clear()
+    
+    def test_step(self, batch, batch_idx):
+        inputs, target = batch
+        output = self.model(inputs)
+        loss =  self.loss_fn(output, target)
+        _, predictions = torch.max(output, 1)
+
+        target_np = target.detach().cpu().numpy()
+        predict_np = predictions.detach().cpu().numpy()
+        
+        self.losses.append(loss)
+        self.labels.append(np.int16(target_np))
+        self.predictions.append(np.int16(predict_np))
+        self.log('test_loss', loss)
+        return loss
+    
+    def on_test_epoch_end(self):
+        labels = np.concatenate(np.array(self.labels, dtype=object))
+        predictions = np.concatenate(np.array(self.predictions, dtype=object))
+        acc = sum(labels == predictions)/len(labels)
+
+        labels = labels.tolist()
+        predictions = predictions.tolist()
+        loss = sum(self.losses)/len(self.losses)
+
+        self.log('test_epoch_acc', acc)
+        self.log('test_epoch_loss', loss)
         
         self.losses.clear()
         self.labels.clear()
