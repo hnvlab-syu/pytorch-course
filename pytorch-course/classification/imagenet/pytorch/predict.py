@@ -32,20 +32,18 @@ def predict(args):
     model.eval()
     with torch.no_grad():
         pred = model(pred_image)
-        pred_target = pred[0].argmax(0)
+        pred_cls = pred[0].argmax(0)
 
     txt_path = '../dataset/folder_num_class_map.txt'
     classes_map = pd.read_table(txt_path, header=None, sep=' ')
     classes_map.columns = ['folder', 'number', 'classes']
     
-    pred_label = classes_map['classes'][pred_target.item()]
-    print(f'Predicted target: "{pred_target}", Predicted label: "{pred_label}"')
-
+    pred_label = classes_map['classes'][pred_cls.item()]
     cv_image = cv.imread(image_path)
     cv_image = cv.resize(cv_image, (800, 600))
     cv.putText(
         cv_image,
-        f'Predicted target: "{pred_target}", Predicted label: "{pred_label}"',
+        f'Predicted class: "{pred_cls[0]}", Predicted label: "{pred_label}"',
         (50, 50),
         cv.FONT_HERSHEY_SIMPLEX,
         0.8,
