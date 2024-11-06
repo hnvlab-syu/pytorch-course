@@ -2,6 +2,8 @@ import os
 import argparse
 
 import numpy as np
+import cv2 as cv2
+import pandas as pd
 import torch
 from torch import nn
 import lightning as L
@@ -97,14 +99,20 @@ class ClassficationModel(L.LightningModule):
         self.labels.clear()
         self.predictions.clear()
 
+    def predict_step(self, batch, batch_idx):
+        inputs, img = batch
+        output = self.model(inputs)
+        _, pred_label = torch.max(output, 1)
+
+        return pred_label.detach().cpu().numpy(), img
+
     def configure_optimizers(self):
         return torch.optim.SGD(self.model.parameters(), lr=1e-3, momentum=0.9)
     
 
-def main(classification_model, data, batch, epoch, save_path, device, gpus, precision):
+def main(classification_model, data, batch, epoch, save_path, device, gpus, precision, mode, ckpt):
     rename_dir()
     model = ClassficationModel(create_model(classification_model))
-    imagenet = ImageNetDataModule(data, batch)
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
@@ -131,16 +139,46 @@ def main(classification_model, data, batch, epoch, save_path, device, gpus, prec
         patience=10
     )
     wandb_logger = WandbLogger(project="ImageNet")
-    trainer = L.Trainer(
-        accelerator=device,
-        devices=gpus,
-        max_epochs=epoch,
-        precision=precision,
-        logger=wandb_logger,
-        callbacks=[checkpoint_callback, early_stopping],
-    )
-    trainer.fit(model, imagenet)
-    trainer.test(model, imagenet)
+    
+    if mode == 'train':
+        trainer = L.Trainer(
+            accelerator=device,
+            devices=gpus,
+            max_epochs=epoch,
+            precision=precision,
+            logger=wandb_logger,
+            callbacks=[checkpoint_callback, early_stopping],
+        )
+        trainer.fit(model, ImageNetDataModule(data, batch))
+        trainer.test(model, ImageNetDataModule(data, batch))
+    else:
+        trainer = L.Trainer(
+            accelerator=device,
+            devices=gpus,
+            precision=precision
+        )
+        model = ClassficationModel.load_from_checkpoint(ckpt, model=create_model(classification_model))
+        pred_cls, img = trainer.predict(model, ImageNetDataModule(data, mode='predict'))[0]
+        txt_path = '../dataset/folder_num_class_map.txt'
+        classes_map = pd.read_table(txt_path, header=None, sep=' ')
+        classes_map.columns = ['folder', 'number', 'classes']
+        
+        pred_label = classes_map['classes'][pred_cls.item()]
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = cv2.resize(img, (800, 600))
+        cv2.putText(
+            img,
+            f'Predicted class: "{pred_cls[0]}", Predicted label: "{pred_label}"',
+            (50, 50),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (0, 0, 0),
+            2
+        )
+        cv2.imshow('Predicted output', img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
 
 
 if __name__ == "__main__":
@@ -152,7 +190,9 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--save_path', dest='save', type=str, default='./checkpoint/')
     parser.add_argument('-dc', '--device', type=str, default='gpu')
     parser.add_argument('-g', '--gpus', type=str, nargs='+', default='0')
-    parser.add_argument('-p', '--precision', type=str, default='16-mixed')
+    parser.add_argument('-p', '--precision', type=str, default='32-true')
+    parser.add_argument('-mo', '--mode', type=str, default='train')
+    parser.add_argument('-c', '--ckpt_path', dest='ckpt', type=str, default='./checkpoint/')
     args = parser.parse_args()
     
-    main(args.model, args.data, args.batch, args.epoch, args.save, args.device, args.gpus, args.precision)
+    main(args.model, args.data, args.batch, args.epoch, args.save, args.device, args.gpus, args.precision, args.mode, args.ckpt)
