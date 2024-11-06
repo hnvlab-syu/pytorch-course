@@ -8,13 +8,7 @@ import torch
 
 from src.dataset import get_transform
 from src.model import create_model
-
-
-parser = argparse.ArgumentParser()
-parser.add_argument("--device", default="cpu", help="학습에 사용되는 장치")
-parser.add_argument("--model", dest="model_name", default="efficientnet", help="학습에 사용되는 모델")
-parser.add_argument("--image_path", type=str, help="예측할 이미지 선택")
-args = parser.parse_args()
+from src.utils import set_seed
 
 
 def predict(args):
@@ -57,4 +51,12 @@ def predict(args):
 
 
 if __name__ == '__main__':
+    set_seed(36)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--device", default="cpu", help="학습에 사용되는 장치")
+    parser.add_argument("--model", dest="model_name", default="efficientnet", help="학습에 사용되는 모델")
+    parser.add_argument("--image_path", type=str, help="예측할 이미지 선택")
+    args = parser.parse_args()
+    
     predict(args)
