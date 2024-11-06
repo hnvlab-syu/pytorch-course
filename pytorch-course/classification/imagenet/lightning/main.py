@@ -18,7 +18,7 @@ from src.model import create_model
 SEED = 36
 L.seed_everything(SEED)
 class ClassficationModel(L.LightningModule):
-    def __init__(self, model, batch_size=32):
+    def __init__(self,model, batch_size: int = 32):
         super().__init__()
         self.model = model
         self.batch_size = batch_size
@@ -84,8 +84,8 @@ class ClassficationModel(L.LightningModule):
         return loss
     
     def on_test_epoch_end(self):
-        labels = np.concatenate(np.array(self.labels, dtype=object))
-        predictions = np.concatenate(np.array(self.predictions, dtype=object))
+        labels = np.concatenate(np.array(self.labels, dtype = object))
+        predictions = np.concatenate(np.array(self.predictions, dtype = object))
         acc = sum(labels == predictions)/len(labels)
 
         labels = labels.tolist()
@@ -178,7 +178,6 @@ def main(classification_model, data, batch, epoch, save_path, device, gpus, prec
         cv2.imshow('Predicted output', img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-
 
 
 if __name__ == "__main__":

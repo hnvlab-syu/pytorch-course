@@ -13,7 +13,7 @@ import lightning as L
 SEED = 36
 L.seed_everything(SEED)
 class ImageNetDataModule(L.LightningDataModule):
-    def __init__(self, data_path:str = '../../dataset', batch_size:int=32, mode:str='train'):
+    def __init__(self, data_path: str = '../../dataset', batch_size: int = 32, mode: str = 'train'):
         super().__init__()
         self.mode = mode
         if self.mode == 'train':

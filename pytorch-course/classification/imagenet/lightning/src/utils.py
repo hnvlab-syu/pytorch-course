@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 
-def rename_dir(path:str='../dataset/folder_num_class_map.txt'):
+def rename_dir(path: str = '../dataset/folder_num_class_map.txt'):
     classes_map = pd.read_table(path, header=None, sep=' ')
     classes_map.columns = ['folder', 'number', 'classes']
     class_dict ={}

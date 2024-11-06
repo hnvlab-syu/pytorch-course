@@ -1,7 +1,7 @@
 from torchvision import models
 
 
-def create_model(model:str='resnet'):
+def create_model(model: str = 'resnet'):
     if model == 'resnet':
         return _resnet18_pretrained()
     elif model == 'efficientnet':
