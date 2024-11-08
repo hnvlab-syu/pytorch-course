@@ -28,12 +28,12 @@ def main(args):
     train_data = ImagenetDataset(
         image_dir=train_x,
         class_name=train_y,
-        transform=get_transform(state='train', image_size=image_size)
+        transform=get_transform(image_size=image_size)
     )
     valid_data = ImagenetDataset(
         image_dir=val_x,
         class_name=val_y,
-        transform=get_transform(state='valid', image_size=image_size)
+        transform=get_transform(image_size=image_size)
     )
     print("Initialize Dataset\n")
 
