@@ -7,10 +7,8 @@ Lightning-Hydra-Template을 기반으로 작성 [Here](https://github.com/ashlev
 ├── configs                   <- Hydra configs
 │   ├── callbacks                <- Callbacks configs
 │   ├── data                     <- Data configs
-│   ├── debug                    <- Debugging configs
 │   ├── experiment               <- Experiment configs
 │   ├── extras                   <- Extra utilities configs
-│   ├── hparams_search           <- Hyperparameter search configs
 │   ├── hydra                    <- Hydra configs
 │   ├── local                    <- Local configs
 │   ├── logger                   <- Logger configs
@@ -18,8 +16,8 @@ Lightning-Hydra-Template을 기반으로 작성 [Here](https://github.com/ashlev
 │   ├── paths                    <- Project paths configs
 │   ├── trainer                  <- Trainer configs
 │   │
-│   ├── eval.yaml             <- Main config for evaluation
-│   └── train.yaml            <- Main config for training
+│   ├── predict.yaml             <- Main config for prediction
+│   └── train.yaml               <- Main config for training
 ```
 
 ## 훈련
@@ -29,7 +27,7 @@ python src/train.py
 
 python src/train.py experiment=train.yaml
 
-python src/train.py +trainer.precision='16-mixed' trainer.max_epochs=30 trainer=gpu model.nest.model=efficientnet seed=36 data.batch_size=128 callbacks.early_stopping.patience=5
+python src/train.py +trainer.precision='16-mixed' trainer.max_epochs=30 trainer=gpu model.net.model=efficientnet seed=36 data.batch_size=128 callbacks.early_stopping.patience=5
 
 # 다양한 파라미터들로 여러번 학습할 때 실행
 bash scripts/schedule.sh
