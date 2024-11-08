@@ -102,9 +102,9 @@ class ClassficationModel(L.LightningModule):
     def predict_step(self, batch, batch_idx):
         inputs, img = batch
         output = self.model(inputs)
-        _, pred_label = torch.max(output, 1)
+        _, pred_cls = torch.max(output, 1)
 
-        return pred_label.detach().cpu().numpy(), img
+        return pred_cls.detach().cpu().numpy(), img
 
     def configure_optimizers(self):
         return torch.optim.SGD(self.model.parameters(), lr=1e-3, momentum=0.9)

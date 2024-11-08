@@ -12,6 +12,8 @@ import lightning as L
 
 SEED = 36
 L.seed_everything(SEED)
+
+
 class ImageNetDataModule(L.LightningDataModule):
     def __init__(self, data_path: str = '../../dataset', batch_size: int = 32, mode: str = 'train'):
         super().__init__()
@@ -21,6 +23,7 @@ class ImageNetDataModule(L.LightningDataModule):
         else:
             self.data_path = data_path
             batch_size = 1
+
         self.batch_size = batch_size
         self.transform = transforms.Compose([
             transforms.Resize((256, 256)),
@@ -29,6 +32,13 @@ class ImageNetDataModule(L.LightningDataModule):
             ])
 
     def setup(self, stage: str):
+        if self.trainer is not None:
+            if self.batch_size % self.trainer.world_size != 0:
+                raise RuntimeError(
+                    f"Batch size ({self.batch_size}) is not divisible by the number of devices ({self.trainer.world_size})."
+                )
+            self.batch_size_per_device = self.batch_size // self.trainer.world_size
+
         if self.mode == 'train':
             class_data = list(map(lambda path: os.path.basename(os.path.dirname(path)).split('-', 1), self.dataset))
             class_ids, _ = zip(*class_data)
@@ -63,13 +73,13 @@ class ImageNetDataModule(L.LightningDataModule):
         return input, np.array(img)
     
     def train_dataloader(self):
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=self._train_collate_fn)
+        return DataLoader(self.train_dataset, batch_size=self.batch_size_per_device, shuffle=True, collate_fn=self._train_collate_fn)
     
     def val_dataloader(self):
-        return DataLoader(self.val_dataset, batch_size=self.batch_size, shuffle=False, collate_fn=self._train_collate_fn)
+        return DataLoader(self.val_dataset, batch_size=self.batch_size_per_device, shuffle=False, collate_fn=self._train_collate_fn)
     
     def test_dataloader(self):
-        return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False, collate_fn=self._train_collate_fn)
+        return DataLoader(self.test_dataset, batch_size=self.batch_size_per_device, shuffle=False, collate_fn=self._train_collate_fn)
     
     def predict_dataloader(self):
-        return DataLoader(self.pred_dataset, batch_size=self.batch_size, shuffle=False, collate_fn=self._predict_collate_fn) 
+        return DataLoader(self.pred_dataset, batch_size=self.batch_size_per_device, shuffle=False, collate_fn=self._predict_collate_fn) 
