@@ -1,6 +1,6 @@
 # Pytorch Classification
 ## 라이브러리
-Lightning-Hydra-Template을 기반으로 작성 [Here]https://github.com/ashleve/lightning-hydra-template
+Lightning-Hydra-Template을 기반으로 작성 [Here](https://github.com/ashleve/lightning-hydra-template)
 
 ## configs 설정
 ```shell
