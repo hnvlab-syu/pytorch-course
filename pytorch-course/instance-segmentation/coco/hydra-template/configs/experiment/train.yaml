@@ -1,0 +1,30 @@
+# @package _global_
+
+defaults:
+  - override /data: imagenet
+  - override /model: imagenet
+  - override /callbacks: default
+  - override /trainer: gpu
+  - override /logger: wandb
+
+# tags: ["imagenet", "efficientnet"]
+
+seed: 36
+
+trainer:
+  min_epochs: 5
+  max_epochs: 30
+  precision: "16-mixed"
+
+model:
+  net:
+    # model: "efficientnet"
+
+data:
+  batch_size: 128
+
+callbacks:
+  early_stopping:
+    monitor: "val/acc"
+    patience: 5
+    mode: "max"

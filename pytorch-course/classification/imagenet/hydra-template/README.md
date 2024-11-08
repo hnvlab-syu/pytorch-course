@@ -1,7 +1,6 @@
 # Pytorch Classification
 ## 라이브러리
 Lightning-Hydra-Template을 기반으로 작성 [Here](https://github.com/ashleve/lightning-hydra-template)
-
 ## configs 설정
 ```shell
 ├── configs                   <- Hydra configs
@@ -10,7 +9,6 @@ Lightning-Hydra-Template을 기반으로 작성 [Here](https://github.com/ashlev
 │   ├── experiment               <- Experiment configs
 │   ├── extras                   <- Extra utilities configs
 │   ├── hydra                    <- Hydra configs
-│   ├── local                    <- Local configs
 │   ├── logger                   <- Logger configs
 │   ├── model                    <- Model configs
 │   ├── paths                    <- Project paths configs
@@ -19,7 +17,6 @@ Lightning-Hydra-Template을 기반으로 작성 [Here](https://github.com/ashlev
 │   ├── predict.yaml             <- Main config for prediction
 │   └── train.yaml               <- Main config for training
 ```
-
 ## 훈련
 주의: 현재 디렉토리에서 아래 명령어 사용해야 함
 ```shell
@@ -33,7 +30,6 @@ python src/train.py +trainer.precision='16-mixed' trainer.max_epochs=30 trainer=
 bash scripts/schedule.sh
 ```
 - trainer: gpu, cpu, ddp 및 학습 paramerts 설정
-
 ## 예측
 주의: 현재 디렉토리에서 아래 명령어 사용해야 함
 ```shell
