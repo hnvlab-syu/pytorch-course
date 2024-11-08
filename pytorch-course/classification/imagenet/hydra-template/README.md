@@ -29,17 +29,20 @@ python src/train.py
 
 python src/train.py experiment=train.yaml
 
-python src/train.py +trainer.precision='16-mixed' trainer.max_epochs=30 trainer=gpu model.net.model=efficientnet seed=36 data.batch_size=128 callbacks.early_stopping.patience=5
+python src/train.py +trainer.precision='16-mixed' trainer.max_epochs=30 trainer=gpu model.nest.model=efficientnet seed=36 data.batch_size=128 callbacks.early_stopping.patience=5
 
+# 다양한 파라미터들로 여러번 학습할 때 실행
 bash scripts/schedule.sh
 ```
 - trainer: gpu, cpu, ddp 및 학습 paramerts 설정
-- 
 
 ## 예측
 주의: 현재 디렉토리에서 아래 명령어 사용해야 함
 ```shell
 python src/predict.py experiment=predict.yaml
 
-python src/predict.py trainer=gpu model.net.model=efficientnet ckpt_path="logs\train\runs\2024-11-08_02-35-08\checkpoints\epoch_005.ckpt" data.mode="predict" data.data_dir="cat.jpg"
+python src/predict.py trainer=gpu model.net.model=efficientnet ckpt_path="your_ckpt_path" data.mode="predict" data.data_dir="example.jpg"
 ```
+- ckpt_path: 학습된 모델의 ckpt 경로
+- data.mode: 추론할땐 반드시 predict으로 변경
+- data.data_dir: 추론하고 싶은 이미지 경로
