@@ -127,14 +127,14 @@ def main(classification_model, data, batch, epoch, save_path, device, gpus, prec
         precision = 32
     
     checkpoint_callback = ModelCheckpoint(
-        monitor='val_acc',
+        monitor='val_epoch_acc',
         mode='max',
         dirpath= f'{save_path}',
-        filename= f'{classification_model}-'+'{epoch:02d}-{val_acc:.2f}',
+        filename= f'{classification_model}-'+'{epoch:02d}-{val_epoch_acc:.2f}',
         save_top_k=1,
     )
     early_stopping = EarlyStopping(
-        monitor='val_acc',
+        monitor='val_epoch_acc',
         mode='max',
         patience=10
     )
