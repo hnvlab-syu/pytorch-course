@@ -17,4 +17,4 @@ model:
 ckpt_path: "logs/train/runs/2024-11-21_20-14-10/checkpoints/epoch_001_0.1393.ckpt"
 
 data:
-  data_dir: "./2007_000027.jpg"
+  data_dir: "./2007_000027.jpg"  # 데이터

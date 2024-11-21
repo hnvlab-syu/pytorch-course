@@ -53,7 +53,7 @@ def predict(cfg: DictConfig) -> None:
         model=model,
         datamodule=datamodule,ckpt_path=cfg.ckpt_path
     )
-    data = './2007_000027.jpg'
+    data = './2007_000027.jpg'  
     
     for pred in predictions:
         pred_mask = pred.squeeze().cpu().numpy()  
