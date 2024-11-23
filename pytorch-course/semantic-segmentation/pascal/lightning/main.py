@@ -9,8 +9,9 @@ from torch import nn
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
 from lightning.pytorch.loggers import WandbLogger
+import torchmetrics
 
-from src.dataset import VOCDataModule
+from src.dataset import PascalVOC2012DataModule
 from src.model import create_model
 
 SEED = 36
@@ -23,11 +24,12 @@ class SegmentationModel(L.LightningModule):
         self.num_classes = num_classes
         self.batch_size = batch_size
         self.loss_fn = nn.CrossEntropyLoss()
-
+        
+        self.train_iou = torchmetrics.JaccardIndex(task='multiclass', num_classes=num_classes)
+        self.val_iou = torchmetrics.JaccardIndex(task='multiclass', num_classes=num_classes)
+        self.test_iou = torchmetrics.JaccardIndex(task='multiclass', num_classes=num_classes)
         
         self.losses = []
-        self.all_predictions = []
-        self.all_labels = []
 
     def forward(self, inputs):
         return self.model(inputs)['out']
@@ -43,40 +45,23 @@ class SegmentationModel(L.LightningModule):
         inputs, target = batch
         output = self(inputs)
         loss = self.loss_fn(output, target)
-
         
         _, predictions = torch.max(output, dim=1)
-
+        self.val_iou.update(predictions, target)
         
         self.losses.append(loss)
-        self.all_predictions.append(predictions.cpu())
-        self.all_labels.append(target.cpu())
-
         self.log('valid_loss', loss)
         return loss
 
     def on_validation_epoch_end(self):
-        
-        predictions = torch.cat(self.all_predictions, dim=0)
-        labels = torch.cat(self.all_labels, dim=0)
-
-        
-        ious = []
-        for cls in range(self.num_classes):
-            intersection = ((predictions == cls) & (labels == cls)).sum().item()
-            union = ((predictions == cls) | (labels == cls)).sum().item()
-            if union > 0:
-                ious.append(intersection / union)
-
-        miou = sum(ious) / len(ious) if ious else 0
+        miou = self.val_iou.compute()
         avg_loss = torch.stack(self.losses).mean()
+        
         self.log('val_miou', miou)
         self.log('val_epoch_loss', avg_loss)
-
-       
+        
+        self.val_iou.reset()
         self.losses.clear()
-        self.all_predictions.clear()
-        self.all_labels.clear()
 
     def test_step(self, batch, batch_idx):
         inputs, target = batch
@@ -84,46 +69,21 @@ class SegmentationModel(L.LightningModule):
         loss = self.loss_fn(output, target)
 
         _, predictions = torch.max(output, dim=1)
-
-        ious = []
-        for cls in range(self.num_classes):
-            intersection = ((predictions == cls) & (target == cls)).sum().item()
-            union = ((predictions == cls) | (target == cls)).sum().item()
-            if union > 0:
-                ious.append(intersection / union)
-
-        miou = sum(ious) / len(ious) if ious else 0
-
-        self.all_predictions.append(predictions.cpu())
-        self.all_labels.append(target.cpu())
-
+        self.test_iou.update(predictions, target)
+        
         self.losses.append(loss)
         self.log('test_loss', loss)
-        self.log('test_miou', miou, prog_bar=True)
+        return loss
 
-        return {'loss': loss, 'miou': miou}
     def on_test_epoch_end(self):
+        miou = self.test_iou.compute()
         avg_loss = torch.stack(self.losses).mean()
+        
         self.log('test_epoch_loss', avg_loss)
-
-        if self.all_predictions and self.all_labels:
-            all_predictions = torch.cat(self.all_predictions, dim=0)
-            all_labels = torch.cat(self.all_labels, dim=0)
-            ious = []
-            for cls in range(self.num_classes):
-                intersection = ((all_predictions == cls) & (all_labels == cls)).sum().item()
-                union = ((all_predictions == cls) | (all_labels == cls)).sum().item()
-                if union > 0:
-                    ious.append(intersection / union)
-
-            test_miou = sum(ious) / len(ious) if ious else 0
-            self.log('test_epoch_miou', test_miou)
-        else:
-            self.log('test_epoch_miou', 0.0)
-
+        self.log('test_epoch_miou', miou)
+        
+        self.test_iou.reset()
         self.losses.clear()
-        self.all_predictions.clear()
-        self.all_labels.clear()
 
     def configure_optimizers(self):
         return torch.optim.SGD(self.model.parameters(), lr=1e-3, momentum=0.9)
@@ -178,8 +138,8 @@ def main(segmentation_model, data, batch, epoch, save_path, device, gpus, precis
             logger=wandb_logger,
             callbacks=[checkpoint_callback, early_stopping],
         )
-        trainer.fit(model, VOCDataModule(data, batch_size=batch))
-        trainer.test(model, VOCDataModule(data, batch_size=batch))
+        trainer.fit(model, PascalVOC2012DataModule(data, batch_size=batch, num_workers=4))
+        trainer.test(model, PascalVOC2012DataModule(data, batch_size=batch, num_workers=4))
 
    
     elif mode == 'predict':
@@ -199,7 +159,7 @@ def main(segmentation_model, data, batch, epoch, save_path, device, gpus, precis
        
         predictions = trainer.predict(
             model,
-            VOCDataModule(data, batch_size=1, mode='predict') 
+            PascalVOC2012DataModule(data, batch_size=1, mode='predict', num_workers=4)
         )
 
         
@@ -223,9 +183,10 @@ def main(segmentation_model, data, batch, epoch, save_path, device, gpus, precis
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('-w', '--num_workers', type=int, default=16, help='number of worker processes for data loading')
     parser.add_argument('-m', '--model', type=str, default='fcn')
     parser.add_argument('-b', '--batch_size', dest='batch', type=int, default=32)
-    parser.add_argument('-e', '--epoch', type=int, default=1)
+    parser.add_argument('-e', '--epoch', type=int, default=10)
     parser.add_argument('-d', '--data_path', dest='data', type=str, default='./data/VOC2012')
     parser.add_argument('-s', '--save_path', dest='save', type=str, default='./checkpoint/')
     parser.add_argument('-dc', '--device', type=str, default='gpu')

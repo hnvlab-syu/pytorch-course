@@ -16,7 +16,7 @@ def preprocess_mask(mask):
     return torch.tensor(mask, dtype=torch.long)
 
 
-class VOCDataset(torch.utils.data.Dataset):
+class PascalVOC2012Dataset(torch.utils.data.Dataset):
     def __init__(self, root_dir, image_list, transform=None, mask_transform=None):
         self.root_dir = root_dir
         self.image_list = image_list
@@ -48,12 +48,13 @@ class VOCDataset(torch.utils.data.Dataset):
         mask = preprocess_mask(mask)
         return image, mask
 
-class VOCDataModule(L.LightningDataModule):
-    def __init__(self, data_path: str = './data/VOC2012', batch_size: int = 32, mode: str = 'train'):
+class PascalVOC2012DataModule(L.LightningDataModule):
+    def __init__(self, data_path: str = './data/VOC2012', batch_size: int = 32, mode: str = 'train', num_workers: int = 4):
         super().__init__()
         self.data_path = data_path
         self.batch_size = batch_size
-        self.mode = mode  
+        self.mode = mode
+        self.num_workers = num_workers
         self.image_transform = transforms.Compose([
             transforms.Resize((256, 256)),
             transforms.ToTensor(),
@@ -72,13 +73,13 @@ class VOCDataModule(L.LightningDataModule):
             with open(val_set_path, 'r') as f:
                 val_list = f.read().splitlines()
 
-            self.train_dataset = VOCDataset(
+            self.train_dataset = PascalVOC2012Dataset(
                 root_dir=self.data_path,
                 image_list=train_list,
                 transform=self.image_transform,
                 mask_transform=self.mask_transform
             )
-            self.val_dataset = VOCDataset(
+            self.val_dataset = PascalVOC2012Dataset(
                 root_dir=self.data_path,
                 image_list=val_list,
                 transform=self.image_transform,
@@ -90,7 +91,7 @@ class VOCDataModule(L.LightningDataModule):
             with open(test_set_path, 'r') as f:
                 test_list = f.read().splitlines()
 
-            self.test_dataset = VOCDataset(
+            self.test_dataset = PascalVOC2012Dataset(
                 root_dir=self.data_path,
                 image_list=test_list,
                 transform=self.image_transform,
@@ -113,13 +114,36 @@ class VOCDataModule(L.LightningDataModule):
         return input_tensor.unsqueeze(0)  
 
     def train_dataloader(self):
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=self._train_collate_fn)
+        return DataLoader(
+            self.train_dataset, 
+            batch_size=self.batch_size, 
+            shuffle=True, 
+            num_workers=self.num_workers, 
+            collate_fn=self._train_collate_fn
+        )
 
     def val_dataloader(self):
-        return DataLoader(self.val_dataset, batch_size=self.batch_size, shuffle=False, collate_fn=self._train_collate_fn)
+        return DataLoader(
+            self.val_dataset, 
+            batch_size=self.batch_size, 
+            shuffle=False, 
+            num_workers=self.num_workers, 
+            collate_fn=self._train_collate_fn
+        )
 
     def test_dataloader(self):
-        return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False, collate_fn=self._train_collate_fn)
+        return DataLoader(
+            self.test_dataset, 
+            batch_size=self.batch_size, 
+            shuffle=False, 
+            num_workers=self.num_workers, 
+            collate_fn=self._train_collate_fn
+        )
 
     def predict_dataloader(self):
-        return DataLoader(self.pred_dataset, batch_size=1, collate_fn=self._predict_collate_fn)
+        return DataLoader(
+            self.pred_dataset, 
+            batch_size=1, 
+            num_workers=self.num_workers, 
+            collate_fn=self._predict_collate_fn
+        )
