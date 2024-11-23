@@ -17,7 +17,7 @@ def preprocess_mask(mask: Image.Image) -> torch.Tensor:
     return torch.tensor(mask, dtype=torch.long)
 
 
-class VOCDataset(Dataset):
+class PascalVOC2012Dataset(Dataset):
     def __init__(self, root_dir: str, image_list: list, transform=None, mask_transform=None, is_predict: bool = False):
         self.root_dir = root_dir
         self.image_list = image_list
@@ -54,7 +54,7 @@ class VOCDataset(Dataset):
         return image, mask
 
 
-class VOCDataModule(LightningDataModule):
+class PascalVOC2012DataModule(LightningDataModule):
     def __init__(
         self,
         data_dir: str = "./data/VOC2012",
@@ -87,13 +87,13 @@ class VOCDataModule(LightningDataModule):
                 self.train_list = f.read().splitlines()
             with open(val_file, "r") as f:
                 self.val_list = f.read().splitlines()
-            self.train_dataset = VOCDataset(
+            self.train_dataset = PascalVOC2012Dataset(
                 root_dir=self.hparams.data_dir,
                 image_list=self.train_list,
                 transform=self.image_transform,
                 mask_transform=self.mask_transform,
             )
-            self.val_dataset = VOCDataset(
+            self.val_dataset = PascalVOC2012Dataset(
                 root_dir=self.hparams.data_dir,
                 image_list=self.val_list,
                 transform=self.image_transform,
@@ -103,7 +103,7 @@ class VOCDataModule(LightningDataModule):
         if stage in (None, "test"):
             with open(test_file, "r") as f:
                 self.test_list = f.read().splitlines()
-            self.test_dataset = VOCDataset(
+            self.test_dataset = PascalVOC2012Dataset(
                 root_dir=self.hparams.data_dir,
                 image_list=self.test_list,
                 transform=self.image_transform,
@@ -138,7 +138,7 @@ class VOCDataModule(LightningDataModule):
         )
 
     def predict_dataloader(self) -> DataLoader[Any]:
-        predict_dataset = VOCDataset(
+        predict_dataset = PascalVOC2012Dataset(
             root_dir=self.hparams.data_dir,
             image_list=["dummy"],  
             transform=self.image_transform,
@@ -156,6 +156,6 @@ class VOCDataModule(LightningDataModule):
 
 
 if __name__ == "__main__":
-    dm = VOCDataModule(data_dir="./data/VOC2012", batch_size=16)
+    dm = PascalVOC2012DataModule(data_dir="./data/VOC2012", batch_size=16)
     dm.setup("fit")
     print(f"Train samples: {len(dm.train_list)}, Val samples: {len(dm.val_list)}")

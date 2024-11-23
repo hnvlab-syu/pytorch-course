@@ -14,7 +14,7 @@ model:
     model: "fcn"
 
 # checkpoint path for the pre-trained model
-ckpt_path: "logs/train/runs/2024-11-21_20-14-10/checkpoints/epoch_001_0.1393.ckpt"
+ckpt_path: "logs/train/runs/2024-11-22_12-12-59/checkpoints/epoch_005_0.2214.ckpt"
 
 data:
   data_dir: "./2007_000027.jpg"  # 데이터

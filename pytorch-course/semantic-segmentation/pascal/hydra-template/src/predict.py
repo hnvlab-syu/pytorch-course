@@ -1,3 +1,10 @@
+import os
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = str(Path(__file__).parent.parent)
+sys.path.append(PROJECT_ROOT)
+
 from typing import Any, Dict, List, Tuple
 
 import cv2
@@ -7,7 +14,6 @@ import rootutils
 from lightning import LightningDataModule, LightningModule, Trainer
 from lightning.pytorch.loggers import Logger
 from omegaconf import DictConfig
-from src.models import SegmentationModel
 from src.models.components.semantic_segmentation_model import create_model
 import numpy as np
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
