@@ -10,9 +10,9 @@ import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
 from lightning.pytorch.loggers import WandbLogger
 
-from src.dataset import ImageNetDataModule
-from src.utils import rename_dir
-from src.model import create_model
+from .src.dataset import ImageNetDataModule
+from .src.utils import rename_dir
+from .src.model import create_model
 
 
 SEED = 36
