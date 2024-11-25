@@ -10,9 +10,9 @@ import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
 from lightning.pytorch.loggers import WandbLogger
 
-from src.dataset import ImageNetDataModule
-from src.utils import rename_dir
-from src.model import create_model
+from .src.dataset import ImageNetDataModule
+from .src.utils import rename_dir
+from .src.model import create_model
 
 
 SEED = 36
@@ -127,14 +127,14 @@ def main(classification_model, data, batch, epoch, save_path, device, gpus, prec
         precision = 32
     
     checkpoint_callback = ModelCheckpoint(
-        monitor='val_epoch_acc',
+        monitor='val_acc',
         mode='max',
         dirpath= f'{save_path}',
-        filename= f'{classification_model}-'+'{epoch:02d}-{val_epoch_acc:.2f}',
+        filename= f'{classification_model}-'+'{epoch:02d}-{val_acc:.2f}',
         save_top_k=1,
     )
     early_stopping = EarlyStopping(
-        monitor='val_epoch_acc',
+        monitor='val_acc',
         mode='max',
         patience=10
     )
