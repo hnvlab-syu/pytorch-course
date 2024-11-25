@@ -1,0 +1,16 @@
+checkpoint
+cuda
+gpu
+datasets
+dataset
+wandb
+__pycache__
+.vscode
+lightning_logs
+logs
+
+*.log
+*.pkl
+*.pt
+*.ckpt
+*.pth
