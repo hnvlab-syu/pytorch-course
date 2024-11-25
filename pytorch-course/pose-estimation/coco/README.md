@@ -1,15 +1,10 @@
 # Pose Estimation 
     ### COCO Val2017 Dataset
 ## Hydra Template_lightning
-    ### ViTPose
-    ### MaskedRCNN
+    ### keypointRCNN
 
-## Lightning_ViTPose
-    ### ViTPose
-
-## Lightning(ViTPose + MaskedRCNN)
-    ### ViTPose
-    ### MaskedRCNN  
+## Lightning
+    ### keypointRCNN  
 
 ## Pytorch
     ### None

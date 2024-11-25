@@ -5,8 +5,7 @@
     ### COCO Val2017
 
 ## 2. Model
-    ### ViTPose
-    ### MaskedRCNN
+    ### keypointRCNN
 
 ## 3. Training
     ### python src/train.py experiment=train.yaml
