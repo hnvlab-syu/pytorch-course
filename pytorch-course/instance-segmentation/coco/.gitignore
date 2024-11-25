@@ -1,0 +1,43 @@
+<<<<<<< HEAD
+checkpoint
+cuda
+gpu
+datasets
+wandb
+__pycache__
+.vscode
+lightning_logs
+logs
+
+*.log
+*.pkl
+*.pt
+*.ckpt
+*.pth
+=======
+.vscode
+__pycache__
+lightning_logs
+wandb
+examples
+checkpoint
+
+
+pytorch-course/*/*/data/*
+!pytorch-course/*/*/data/README.md
+!pytorch-course/*/*/data/.gitkeep
+pytorch-course/*/*/dataset/*
+!pytorch-course/*/*/dataset/.gitkeep
+!pytorch-course/*/*/dataset/*.txt
+
+# Ignore model files
+*.pth
+*.pkl
+*.pt
+*.ckpt
+*.csv
+*.log
+
+# Ignore hydra logs
+pytorch-course/*/*/*/hydra-template/logs/
+>>>>>>> upstream/develop

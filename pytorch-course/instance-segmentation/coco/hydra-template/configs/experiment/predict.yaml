@@ -1,23 +1,18 @@
 # @package _global_
 
 defaults:
-  - override /data: imagenet
-  - override /model: imagenet
+  - override /data: coco
+  - override /model: coco
   - override /trainer: gpu
-
-# tags: ["imagenet", "efficientnet"]
 
 seed: 36
 
 model:
   net:
-    # model: "efficientnet"
+    model_name: "mask_rcnn"
 
-# e.g. ckpt_path
-# ckpt_path: "logs/train/runs/2024-11-08_02-35-08/checkpoints/epoch_005.ckpt"
-ckpt_path: "logs/train/runs/<your dir>/checkpoints/<your checkpoint>.ckpt"
+ckpt_path: "/mnt/c/Users/jongsu/documents/pytorch_course/pytorch-course/pytorch-course/instance-segmentation/coco/hydra-template/logs/train/runs/2024-11-22_04-54-21/checkpoints/last.ckpt"
 
 data:
-  mode: "predict" 
-  # path to the image to predict
-  data_dir: "example.jpg"
+  mode: "predict"
+  data_dir: "/mnt/c/Users/jongsu/Documents/pytorch_course/pytorch-course/pytorch-course/instance-segmentation/coco/datasets/COCO/val2017/000000001000.jpg"

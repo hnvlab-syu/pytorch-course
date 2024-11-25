@@ -1,6 +1,7 @@
-_target_: src.data.imagenet_datamodule.ImageNetDataModule
-data_dir: ${paths.data_dir}
-batch_size: 64 # Needs to be divisible by the number of devices (e.g., if in a distributed setup)
+_target_: src.data.coco_datamodule.COCODataModule
+data_dir: /mnt/c/Users/jongsu/Documents/pytorch_course/pytorch-course/pytorch-course/instance-segmentation/coco/datasets/COCO/val2017
+annotation_file: /mnt/c/Users/jongsu/Documents/pytorch_course/pytorch-course/pytorch-course/instance-segmentation/coco/datasets/COCO/instances_val2017.json
+batch_size: 32
 num_workers: 0
 pin_memory: False
-# mode: "train"
+mode: "train"

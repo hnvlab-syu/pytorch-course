@@ -1,19 +1,21 @@
-# @package _global_
-
 defaults:
   - _self_
-  - data: imagenet # choose datamodule with `test_dataloader()` for evaluation
-  - model: imagenet
-  - logger: null
-  - trainer: default
+  - data: coco
+  - model: coco
+  - trainer: gpu
   - paths: default
-  - extras: default
   - hydra: default
-  - experiment: null
 
 task_name: "predict"
-
 tags: ["dev"]
 
-# passing checkpoint path is necessary for evaluation
+model:
+  net:
+    model_name: "mask_rcnn"
+  batch_size: 1
+
 ckpt_path: ???
+
+data:
+  mode: "predict"
+  batch_size: ${model.batch_size}
