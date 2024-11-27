@@ -2,8 +2,8 @@
 
 defaults:
   - _self_
-  - data: imagenet # choose datamodule with `test_dataloader()` for evaluation
-  - model: imagenet
+  - data: pascal # choose datamodule with `test_dataloader()` for evaluation
+  - model: pascal
   - logger: null
   - trainer: default
   - paths: default
