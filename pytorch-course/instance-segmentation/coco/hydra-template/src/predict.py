@@ -7,7 +7,10 @@ import rootutils
 from lightning import LightningDataModule, LightningModule, Trainer
 from lightning.pytorch.loggers import Logger
 from omegaconf import DictConfig
+<<<<<<< HEAD
 import numpy as np
+=======
+>>>>>>> upstream/develop
 
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 

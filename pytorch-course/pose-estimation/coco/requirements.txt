@@ -1,0 +1,17 @@
+numpy==1.24.4
+torch==2.4.1+cu118
+torchvision==0.19.1+cu118
+torchaudio==2.4.1+cu118
+opencv-python==4.10.0.84
+pillow==10.4.0
+matplotlib==3.7.5
+pandas==2.0.3
+scipy==1.10.1
+albumentations==1.4.18
+wandb==0.18.7
+tqdm==4.66.4
+hydra-core==1.4.0
+colorlog==6.0.1
+rootutils==0.4.0
+lightning==2.3.0
+

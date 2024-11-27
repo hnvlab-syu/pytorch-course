@@ -1,12 +1,10 @@
-from typing import Any, Dict, List, Tuple
-
-import cv2
-import pandas as pd
+from typing import List
 import hydra
 import rootutils
 from lightning import LightningDataModule, LightningModule, Trainer
 from lightning.pytorch.loggers import Logger
 from omegaconf import DictConfig
+from src.utils.utils import visualize_pose_estimation
 
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
@@ -46,34 +44,23 @@ def predict(cfg: DictConfig) -> None:
         log_hyperparameters(object_dict)
 
     log.info("Starting predicting!")
-    # output  = trainer.predict(model=model, datamodule=datamodule, ckpt_path=cfg.ckpt_path)
-    # pred_cls, img = output[0]
-    # txt_path = '../dataset/folder_num_class_map.txt'
-    # classes_map = pd.read_table(txt_path, header=None, sep=' ')
-    # classes_map.columns = ['folder', 'number', 'classes']
+    predictions = trainer.predict(model=model, datamodule=datamodule, ckpt_path=cfg.ckpt_path)
     
-    # pred_label = classes_map['classes'][pred_cls.item()]
-    # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    # img = cv2.resize(img, (800, 600))
-    # cv2.putText(
-    #     img,
-    #     f'Predicted class: "{pred_cls[0]}", Predicted label: "{pred_label}"',
-    #     (50, 50),
-    #     cv2.FONT_HERSHEY_SIMPLEX,
-    #     0.8,
-    #     (0, 0, 0),
-    #     2
-    # )
-    # cv2.imshow('Predicted output', img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    batch_result = predictions[0]
 
+    print("Output shape:", batch_result["output"].shape)
+    
+    visualize_pose_estimation(
+        image=batch_result["image"][0],
+        output=batch_result["output"][0],
+        save_path='prediction_result.png'
+    )
+   
+    log.info("Finished predicting!")
 
 @hydra.main(version_base="1.3", config_path="../configs", config_name="predict.yaml")
 def main(cfg: DictConfig) -> None:
-
     predict(cfg)
-
 
 if __name__ == "__main__":
     main()

@@ -1,23 +1,20 @@
 # @package _global_
 
 defaults:
-  - override /data: imagenet
-  - override /model: imagenet
+  - override /data: pascal
+  - override /model: pascal
   - override /trainer: gpu
 
-# tags: ["imagenet", "efficientnet"]
+tags: ["pascal", "fcn"]
 
 seed: 36
 
 model:
   net:
-    # model: "efficientnet"
+    model: "fcn"
 
-# e.g. ckpt_path
-# ckpt_path: "logs/train/runs/2024-11-08_02-35-08/checkpoints/epoch_005.ckpt"
-ckpt_path: "logs/train/runs/<your dir>/checkpoints/<your checkpoint>.ckpt"
+# checkpoint path for the pre-trained model
+ckpt_path: "logs/train/runs/2024-11-22_12-12-59/checkpoints/epoch_005_0.2214.ckpt"
 
 data:
-  mode: "predict" 
-  # path to the image to predict
-  data_dir: "example.jpg"
+  data_dir: "./2007_000027.jpg"  # 데이터

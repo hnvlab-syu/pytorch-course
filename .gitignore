@@ -1,16 +1,25 @@
-checkpoint
-cuda
-gpu
-datasets
-dataset
-wandb
-__pycache__
 .vscode
+__pycache__
 lightning_logs
-logs
+wandb
+examples
+checkpoint
 
-*.log
+
+pytorch-course/*/*/data/*
+!pytorch-course/*/*/data/README.md
+!pytorch-course/*/*/data/.gitkeep
+pytorch-course/*/*/dataset/*
+!pytorch-course/*/*/dataset/.gitkeep
+!pytorch-course/*/*/dataset/*.txt
+
+# Ignore model files
+*.pth
 *.pkl
 *.pt
 *.ckpt
-*.pth
+*.csv
+*.log
+
+# Ignore hydra logs
+pytorch-course/*/*/*/hydra-template/logs/
