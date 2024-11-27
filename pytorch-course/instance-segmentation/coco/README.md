@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # COCO 데이터셋의 validation 데이터셋을 사용
 COCO Dataset을 사용하여 Instance Segmentation 모델을 학습
 
