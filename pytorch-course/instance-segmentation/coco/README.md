@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # COCO 데이터셋의 validation 데이터셋을 사용
 COCO Dataset을 사용하여 Instance Segmentation 모델을 학습
 
@@ -37,7 +36,6 @@ Pytorch Course에서 사용하는 라이브러리
 <<<<<<< HEAD
 자세한 내용은 각 디렉토리 내에 있는 README 파일에서 확인
 
-=======
 ## Download Datasets
 - 접속 권한 확인 후 HnVLab Synology 접속 [Here](https://hnvlab.synology.me:5001/)
 - Synology/dataset/표준코드에서 각 테스크에 맞는 데이터셋 다운로드
@@ -54,4 +52,3 @@ Pytorch Course에서 사용하는 라이브러리
 3. semantic segmentation
 4. Instance segmentation
 5. Super resolution
->>>>>>> upstream/develop
