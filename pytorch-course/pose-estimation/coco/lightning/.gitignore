@@ -144,12 +144,14 @@ dmypy.json
 *.tar
 *.tar.gz
 *.ckpt
+
 # Lightning-Hydra-Template
 configs/local/default.yaml
 /data/
 /logs/
 .env
 /checkpoint/
-
+/lightning_logs/
+/wandb/
 # Aim logging
 .aim
