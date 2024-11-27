@@ -1,0 +1,2 @@
+[submodule "pytorch-course/instance-segmentation/coco"]
+	path = pytorch-course/instance-segmentation/coco
