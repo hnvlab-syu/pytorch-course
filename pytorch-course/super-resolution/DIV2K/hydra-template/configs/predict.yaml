@@ -2,8 +2,8 @@
 
 defaults:
   - _self_
-  - data: imagenet # choose datamodule with `test_dataloader()` for evaluation
-  - model: imagenet
+  - data: div2k   # choose datamodule with `test_dataloader()` for evaluation
+  - model: div2k
   - logger: null
   - trainer: default
   - paths: default

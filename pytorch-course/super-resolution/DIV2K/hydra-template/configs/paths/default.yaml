@@ -4,7 +4,8 @@
 root_dir: ${oc.env:PROJECT_ROOT}
 
 # path to data directory
-data_dir: ${paths.root_dir}/../dataset/
+lr_dir: ${paths.root_dir}/../datasets/DIV2K_train_LR_mild_sub/
+hr_dir: ${paths.root_dir}/../datasets/DIV2K_train_HR_sub/
 
 # path to logging directory
 log_dir: ${paths.root_dir}/logs/
@@ -16,3 +17,6 @@ output_dir: ${hydra:runtime.output_dir}
 
 # path to working directory
 work_dir: ${hydra:runtime.cwd}
+
+weight_dir: ${paths.root_dir}/configs/model/weights/EDSR/EDSR_Mx4_f64b16_DIV2K_official-0c287733.pth
+# ${paths.root_dir}/configs/model/weights/realesrgan/RealESRGAN_x4plus.pth

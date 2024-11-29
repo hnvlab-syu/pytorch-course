@@ -1,18 +1,120 @@
 import os
+import wandb
+import torch
 import argparse
-import numpy as np
 import cv2 as cv2
+import numpy as np
+from PIL import Image
 import lightning as L
 
-from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping, RichProgressBar, DeviceStatsMonitor
+from torch import nn
+from torchmetrics.image import PeakSignalNoiseRatio
+from torchmetrics.image import StructuralSimilarityIndexMeasure
+
 from lightning.pytorch.loggers import WandbLogger
+from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping, RichProgressBar, DeviceStatsMonitor
 
 from src.dataset import DIV2KDataModule
-from src.model import create_model, SRModel
+# from src.utils import visualize_dataset
+from src.model import create_model
 
 
 SEED = 36
 L.seed_everything(SEED)
+
+class SRModel(L.LightningModule):
+    def __init__(self, model, learning_rate, batch_size):
+        super().__init__()
+        self.model = model
+        self.learning_rate = learning_rate
+        self.batch_size = batch_size
+
+        self.loss_fn = nn.L1Loss()
+        self.psnr = PeakSignalNoiseRatio().to(self.device)
+        self.ssim = StructuralSimilarityIndexMeasure().to(self.device)
+        
+        self.save_hyperparameters(ignore=['model'])
+
+    def forward(self, inputs):      # self() == self.model(inputs)
+        # 3-> 12 channels ***realesrgan일 때 필요***
+        # inputs = torch.cat([inputs, inputs, inputs, inputs], dim=1)
+        return self.model(inputs)
+    
+    def training_step(self, batch, ):  # 여기서의 batch는 DataLoader가 제공하는 실제 데이터 배치: (lr_imgs, hr_imgs)형태
+        lr_imgs, hr_imgs = batch
+        sr_imgs = self(lr_imgs)
+
+        loss = self.loss_fn(sr_imgs, hr_imgs)
+        psnr = self.psnr(sr_imgs, hr_imgs)
+        ssim = self.ssim(sr_imgs, hr_imgs)
+        
+        self.log_dict({
+            'train_loss': loss,
+            'train_psnr': psnr,
+            'train_ssim': ssim,
+            'epoch': self.current_epoch
+        }, prog_bar=True)
+
+        return loss
+    
+    def validation_step(self, batch, batch_idx):
+        lr_imgs, hr_imgs = batch
+        sr_imgs = self(lr_imgs)
+        
+        loss = self.loss_fn(sr_imgs, hr_imgs)
+        psnr = self.psnr(sr_imgs, hr_imgs)
+        ssim = self.ssim(sr_imgs, hr_imgs)
+        
+        self.log_dict({
+            'val_loss': loss,
+            'val_psnr': psnr,
+            'val_ssim': ssim,
+            'epoch': self.current_epoch
+        }, prog_bar=True)
+        
+        if batch_idx == 0 and self.logger:
+            self._log_images(lr_imgs[0], sr_imgs[0], hr_imgs[0])
+            
+        return loss
+
+    def test_step(self, batch, batch_idx):
+        return self.validation_step(batch, batch_idx)
+
+    def predict_step(self, batch, batch_idx):
+        lr_imgs, _ = batch
+        return self(lr_imgs)
+    
+    def _log_images(self, lr_img, sr_img, hr_img):
+        if self.logger:
+            # 0-1 범위에서 0-255 범위로 변환 후 uint8로 변환
+            lr_np = (lr_img.detach().cpu().permute(1, 2, 0).numpy() * 255).astype(np.uint8)
+            sr_np = (sr_img.detach().cpu().permute(1, 2, 0).numpy() * 255).astype(np.uint8)
+            hr_np = (hr_img.detach().cpu().permute(1, 2, 0).numpy() * 255).astype(np.uint8)
+    
+            # PIL Image로 변환
+            lr_pil = Image.fromarray(lr_np)
+            sr_pil = Image.fromarray(sr_np)
+            hr_pil = Image.fromarray(hr_np)
+    
+            # 개별적으로 로깅
+            self.logger.experiment.log({
+                "LR_image": wandb.Image(lr_pil, caption="LR (120x120)"),
+                "SR_image": wandb.Image(sr_pil, caption="SR (480x480)"),
+                "HR_image": wandb.Image(hr_pil, caption="HR (480x480)")
+            })
+    
+    def configure_optimizers(self):
+        optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer, mode='max', factor=0.5, patience=5, verbose=True
+        )
+        return {
+            "optimizer": optimizer,
+            "lr_scheduler": {
+                "scheduler": scheduler,
+                "monitor": "val_psnr"
+            }
+        }
 
 
 def main(model, weights, lr_data, hr_data, learning_rate, batch_size, num_workers, epoch, save, device, gpus, precision, mode, ckpt):
@@ -64,6 +166,7 @@ def main(model, weights, lr_data, hr_data, learning_rate, batch_size, num_worker
         logger = WandbLogger(project="SR",),
         callbacks = callbacks,
         gradient_clip_val = 0.5,
+        # accumulate_grad_batches=32,   # 추가: 더 작은 batch로 나누어 처리
     )
 
     if mode == 'train':
@@ -120,8 +223,4 @@ if __name__ == "__main__":
 
     main(args.model, args.weights, args.lr_data, args.hr_data, args.learning_rate, args.batch_size, args.num_workers, 
          args.epoch, args.save, args.device, args.gpus, args.precision, args.mode, args.ckpt)  
-    
-
-
-    
 
