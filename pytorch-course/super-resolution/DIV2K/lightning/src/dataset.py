@@ -4,10 +4,10 @@ import numpy as np
 import torch
 import lightning as L
 
-from typing import Optional, Tuple
 from PIL import Image
-from torch.utils.data import DataLoader, Dataset
+from typing import Optional, Tuple
 from torchvision import transforms
+from torch.utils.data import DataLoader, Dataset
 from sklearn.model_selection import train_test_split
 
 from basicsr.data.transforms import augment, paired_random_crop
@@ -35,8 +35,6 @@ class DIV2KDataset(Dataset):
 
     def __len__(self) -> int:
         return len(self.lr)
-
-
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         scale = 4
@@ -117,14 +115,23 @@ class DIV2KDataModule(L.LightningDataModule):
         if stage == "predict":
             self.pred_dataset = DIV2KDataset(self.lr_dataset, self.lr_dataset, self.transform, 'predict')
 
-
     def train_dataloader(self):
-        return DataLoader(self.train_dataset, 
-                          batch_size=self.batch_size, 
-                          shuffle=True, 
-                          num_workers=self.num_workers, 
-                          pin_memory=True, )
-                          # collate_fn=self.collate_fn) # num_workers=4
+        # return DataLoader(self.train_dataset, 
+        #                   batch_size=self.batch_size, 
+        #                   shuffle=True, 
+        #                   num_workers=self.num_workers, 
+        #                   pin_memory=True, )
+        #                   # collate_fn=self.collate_fn) # num_workers=4
+        train_loader = DataLoader(
+            self.train_dataset, 
+            batch_size=self.batch_size, 
+            shuffle=True, 
+            num_workers=self.num_workers, 
+            pin_memory=True,
+        )
+        print(f"Number of batches in train_dataloader: {len(train_loader)}")
+        return train_loader
+
 
     def val_dataloader(self):
         return DataLoader(self.val_dataset, 
