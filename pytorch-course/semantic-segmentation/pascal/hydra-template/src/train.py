@@ -39,12 +39,12 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     callbacks: List[Callback] = instantiate_callbacks(cfg.get("callbacks"))
 
     log.info("Instantiating loggers...")
-    loggers: List[Logger] = instantiate_loggers(cfg.get("logger"))
+    logger: List[Logger] = instantiate_loggers(cfg.get("logger"))
 
     log.info(f"Instantiating trainer <{cfg.trainer._target_}>")
-    trainer: Trainer = hydra.utils.instantiate(cfg.trainer, callbacks=callbacks, logger=loggers)
+    trainer: Trainer = hydra.utils.instantiate(cfg.trainer, callbacks=callbacks, logger=logger)
 
-    if loggers:
+    if logger:
         log.info("Logging hyperparameters...")
         log_hyperparameters(
             {
@@ -52,7 +52,7 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
                 "datamodule": datamodule,
                 "model": model,
                 "callbacks": callbacks,
-                "logger": loggers,
+                "logger": logger,
                 "trainer": trainer,
             }
         )
@@ -72,16 +72,18 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
 
     test_metrics = trainer.callback_metrics
 
-    metrics = {**train_metrics, **test_metrics}
-
-    return metrics, {
+    object_dict = {
         "cfg": cfg,
         "datamodule": datamodule,
         "model": model,
         "callbacks": callbacks,
-        "loggers": loggers,
+        "logger": logger,
         "trainer": trainer,
     }
+
+    metric_dict = {**train_metrics, **test_metrics}
+
+    return metric_dict, object_dict
 
 
 @hydra.main(version_base="1.3", config_path="../configs", config_name="train.yaml")

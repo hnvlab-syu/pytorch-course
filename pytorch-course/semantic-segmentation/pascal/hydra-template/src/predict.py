@@ -54,26 +54,20 @@ def predict(cfg: DictConfig) -> None:
         log_hyperparameters(object_dict)
 
     log.info("Starting predicting!")
-       
-    predictions = trainer.predict(
-        model=model,
-        datamodule=datamodule,ckpt_path=cfg.ckpt_path
-    )
+    output = trainer.predict(model=model, datamodule=datamodule, ckpt_path=cfg.ckpt_path)
     data = './2007_000027.jpg'  
-    
-    for pred in predictions:
+
+    for pred in output:
         pred_mask = pred.squeeze().cpu().numpy()  
         img = cv2.imread(data)  
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  
         
-    
         pred_mask = np.argmax(pred_mask, axis=0)  
         pred_mask = cv2.resize(pred_mask, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_NEAREST)
         pred_mask = (pred_mask / pred_mask.max() * 255).astype(np.uint8)
         color_mask = cv2.applyColorMap(pred_mask, cv2.COLORMAP_JET)     
         overlay = cv2.addWeighted(img, 0.6, color_mask, 0.4, 0)
 
-        
         cv2.imshow('Predicted Segmentation', overlay)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
