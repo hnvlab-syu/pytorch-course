@@ -15,8 +15,9 @@ scheduler:
 
 net:
   _target_: src.models.components.sr_model.create_model
-  model_name: esrgan
+  model: "EDSR"
   weight_path: ${paths.weight_dir}  # model.py
+  upscale: 4
 
 # compile model for faster training with pytorch 2.0
 compile: false

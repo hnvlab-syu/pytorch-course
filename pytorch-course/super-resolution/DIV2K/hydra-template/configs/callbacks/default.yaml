@@ -8,7 +8,7 @@ defaults:
 model_checkpoint:
   _target_: lightning.pytorch.callbacks.ModelCheckpoint
   dirpath: ${paths.output_dir}/checkpoints
-  filename: "epoch_{epoch:03d}_{val/acc:.4f}"
+  filename: "epoch_{epoch:03d}_{val/psnr:.4f}"
   monitor: "val/psnr"
   mode: "max"
   save_last: True

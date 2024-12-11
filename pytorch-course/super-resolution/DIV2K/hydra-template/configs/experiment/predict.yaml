@@ -9,15 +9,22 @@ tags: ["div2k", "EDSR"]
 
 seed: 36
 
+trainer:
+  precision: "16-mixed"
+
 model:
   net:
     model: "EDSR"
 
 # e.g. ckpt_path
 # ckpt_path: "logs/train/runs/2024-11-08_02-35-08/checkpoints/epoch_005.ckpt"
-ckpt_path: "logs/train/runs/<your dir>/checkpoints/<your checkpoint>.ckpt"
+ckpt_path: "/workspace/pytorch-course/pytorch-course/super-resolution/DIV2K/hydra-template/logs/train/runs/2024-12-06_11-18-17/checkpoints/epoch_002_17.8601.ckpt"   #"logs/train/runs/2024-12-06_11-18-17/checkpoints/epoch_002_17.8601.ckpt"
+
+# root_dir: ${paths.root_dir}
+output_dir: ${paths.output_dir}
 
 data:
   mode: "predict" 
+  batch_size: 1
   # path to the image to predict
-  data_dir: "example.jpg"
+  # data_dir: "example.jpg"
