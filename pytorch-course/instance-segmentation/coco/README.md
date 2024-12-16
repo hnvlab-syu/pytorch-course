@@ -28,7 +28,6 @@ coco/
 삼육대학교 HnV 연구실에서 작성한 코드로, 학생들 교육을 위해 만들어졌습니다.
 
 Pytorch Course에서 사용하는 라이브러리
->>>>>>> upstream/develop
 1. PyTorch
 2. PyTorch Lightning
 3. Lightning-Hydra-Template
