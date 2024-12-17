@@ -1,5 +1,6 @@
 from typing import List
 
+import os
 import cv2
 import numpy as np
 import hydra
@@ -7,6 +8,7 @@ import rootutils
 from lightning import LightningDataModule, LightningModule, Trainer
 from lightning.pytorch.loggers import Logger
 from omegaconf import DictConfig
+from PIL import Image
 
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
@@ -40,79 +42,29 @@ def predict(cfg: DictConfig) -> None:
         "logger": logger,
         "trainer": trainer,
     }
+    print(object_dict)
 
     if logger:
         log.info("Logging hyperparameters!")
         log_hyperparameters(object_dict)
 
     log.info("Starting predicting!")
-    outputs = trainer.predict(
-        model=model, 
-        datamodule=datamodule, 
-        ckpt_path=cfg.ckpt_path
-    )
-    
-    # Process each output (batch)
-    for batch_idx, (lr_img, sr_img) in enumerate(outputs):
-        # Convert tensors to numpy arrays
-        lr_img = lr_img.cpu().numpy().transpose(1, 2, 0)
-        sr_img = sr_img.cpu().numpy().transpose(1, 2, 0)
-        
-        # Denormalize if needed
-        lr_img = np.clip(lr_img * 255, 0, 255).astype(np.uint8)
-        sr_img = np.clip(sr_img * 255, 0, 255).astype(np.uint8)
-        
-        # Convert to BGR for OpenCV
-        lr_img = cv2.cvtColor(lr_img, cv2.COLOR_RGB2BGR)
-        sr_img = cv2.cvtColor(sr_img, cv2.COLOR_RGB2BGR)
-        
-        # Optional: Resize for display
-        display_height = 400
-        lr_h, lr_w = lr_img.shape[:2]
-        sr_h, sr_w = sr_img.shape[:2]
-        
-        lr_display = cv2.resize(
-            lr_img, 
-            (int(lr_w * display_height/lr_h), display_height)
-        )
-        sr_display = cv2.resize(
-            sr_img, 
-            (int(sr_w * display_height/sr_h), display_height)
-        )
-        
-        # Create comparison view
-        comparison = np.hstack([lr_display, sr_display])
-        
-        # Add text labels
-        cv2.putText(
-            comparison,
-            'LR Input',
-            (50, 30),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            1,
-            (0, 255, 0),
-            2
-        )
-        cv2.putText(
-            comparison,
-            'SR Output',
-            (lr_display.shape[1] + 50, 30),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            1,
-            (0, 255, 0),
-            2
-        )
-        
-        # Display results
-        cv2.imshow(f'Super Resolution Result {batch_idx}', comparison)
-        
-        # Save results
-        save_path = f'output/sr_result_{batch_idx}.png'
-        cv2.imwrite(save_path, comparison)
-        log.info(f"Saved result to {save_path}")
-    
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    output = trainer.predict(model=model, datamodule=datamodule, ckpt_path=cfg.ckpt_path)
+    print('------------predict.py > output---------------\n', output)
+
+    save_dir = cfg.output_dir   # os.path.join(cfg.root_dir, 'output')
+    os.makedirs(save_dir, exist_ok=True)
+
+    for i, output in enumerate(output):
+        print('---------------------shape---------------------')
+        print(output.shape)     # 
+        img_np = output.cpu().numpy().squeeze().transpose(1, 2, 0)   # squeeze(차원 따로 설정 안 했을 경우, 1인 차원 전부 제거)
+        print(img_np)
+        img_np = (img_np * 255).clip(0, 255).astype(np.uint8)   ##########
+        print(img_np)
+
+        im = Image.fromarray(img_np)   ########## cv2말고 PIL로
+        im.save(os.path.join(save_dir, f'output.png'))
 
 
 @hydra.main(version_base="1.3", config_path="../configs", config_name="predict.yaml")

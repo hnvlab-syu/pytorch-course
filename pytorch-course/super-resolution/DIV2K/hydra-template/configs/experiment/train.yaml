@@ -19,15 +19,15 @@ trainer:
 
 model:
   net:
-    model_name: "EDSR"    # realesrgan
+    model: "EDSR"    # realesrgan
 
 data:
-  batch_size: 1
+  batch_size: 8
 
 callbacks:
-  early_stopping_psnr:
+  early_stopping:
     monitor: "val/psnr"
-    patience: 10
+    patience: 15
     mode: "max"
   
   # early_stopping_ssim:
