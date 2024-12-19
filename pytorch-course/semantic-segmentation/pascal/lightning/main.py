@@ -143,8 +143,8 @@ def main(segmentation_model, data, batch, epoch, save_path, device, gpus, precis
             logger=wandb_logger,
             callbacks=[checkpoint_callback, early_stopping],
         )
-        trainer.fit(model, PascalVOC2012DataModule(data, batch, 'train', num_classes, num_workers=4))
-        trainer.test(model, PascalVOC2012DataModule(data, batch, 'train', num_classes, num_workers=4))
+        trainer.fit(model, PascalVOC2012DataModule(data, batch, 'train', num_classes, num_workers=0))
+        trainer.test(model, PascalVOC2012DataModule(data, batch, 'train', num_classes, num_workers=0))
 
     elif mode == 'predict':
         trainer = L.Trainer(
@@ -159,7 +159,7 @@ def main(segmentation_model, data, batch, epoch, save_path, device, gpus, precis
             num_classes=num_classes
         )
 
-        predictions = trainer.predict(model, PascalVOC2012DataModule(data, 1, 'predict', num_classes, num_workers=4))
+        predictions = trainer.predict(model, PascalVOC2012DataModule(data, 1, 'predict', num_classes, num_workers=0))
 
         for pred in predictions:
             pred_mask = pred.squeeze().cpu().numpy()  
