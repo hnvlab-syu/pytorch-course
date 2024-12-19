@@ -9,7 +9,9 @@ checkpoint
 pytorch-course/*/*/data/*
 !pytorch-course/*/*/data/README.md
 !pytorch-course/*/*/data/.gitkeep
+!pytorch-course/*/*/data/*.txt
 pytorch-course/*/*/dataset/*
+!pytorch-course/*/*/dataset/README.md
 !pytorch-course/*/*/dataset/.gitkeep
 !pytorch-course/*/*/dataset/*.txt
 
