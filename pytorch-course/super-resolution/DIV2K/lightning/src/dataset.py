@@ -36,7 +36,6 @@ class DIV2KDataModule(L.LightningDataModule):
             self.transform = transforms.Compose([
                 transforms.ToTensor(),
             ])
-
             if not self.lr_dataset or not self.hr_dataset:
                 raise RuntimeError(f"No images found in {lr_dir} or {hr_dir}")
             if len(self.lr_dataset) != len(self.hr_dataset):
