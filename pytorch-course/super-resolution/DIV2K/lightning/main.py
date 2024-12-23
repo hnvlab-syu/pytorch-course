@@ -205,7 +205,7 @@ def main(model, weights, upscale, lr_data, hr_data, learning_rate, batch_size, n
         ModelCheckpoint(
             dirpath=save,
             filename=f'sr_model-'+'{epoch:02d}-{val_ssim:.2f}',
-            monitor='val/ssim',
+            monitor='val/ssim',  
             mode='max',
             save_top_k=3,
         ),
