@@ -1,3 +1,10 @@
+import os
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = str(Path(__file__).parent.parent)
+sys.path.append(PROJECT_ROOT)
+
 from typing import Any, Dict, List, Tuple
 
 import cv2
@@ -7,7 +14,8 @@ import rootutils
 from lightning import LightningDataModule, LightningModule, Trainer
 from lightning.pytorch.loggers import Logger
 from omegaconf import DictConfig
-
+from src.models.components.semantic_segmentation_model import create_model
+import numpy as np
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
 from src.utils import (
@@ -46,27 +54,24 @@ def predict(cfg: DictConfig) -> None:
         log_hyperparameters(object_dict)
 
     log.info("Starting predicting!")
-    # output  = trainer.predict(model=model, datamodule=datamodule, ckpt_path=cfg.ckpt_path)
-    # pred_cls, img = output[0]
-    # txt_path = '../dataset/folder_num_class_map.txt'
-    # classes_map = pd.read_table(txt_path, header=None, sep=' ')
-    # classes_map.columns = ['folder', 'number', 'classes']
-    
-    # pred_label = classes_map['classes'][pred_cls.item()]
-    # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    # img = cv2.resize(img, (800, 600))
-    # cv2.putText(
-    #     img,
-    #     f'Predicted class: "{pred_cls[0]}", Predicted label: "{pred_label}"',
-    #     (50, 50),
-    #     cv2.FONT_HERSHEY_SIMPLEX,
-    #     0.8,
-    #     (0, 0, 0),
-    #     2
-    # )
-    # cv2.imshow('Predicted output', img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    output = trainer.predict(model=model, datamodule=datamodule, ckpt_path=cfg.ckpt_path)
+    data = './2007_000027.jpg'  
+
+    for pred in output:
+        pred_mask = pred.squeeze().cpu().numpy()  
+        img = cv2.imread(data)  
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  
+        
+        pred_mask = np.argmax(pred_mask, axis=0)  
+        pred_mask = cv2.resize(pred_mask, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_NEAREST)
+        pred_mask = (pred_mask / pred_mask.max() * 255).astype(np.uint8)
+        color_mask = cv2.applyColorMap(pred_mask, cv2.COLORMAP_JET)     
+        overlay = cv2.addWeighted(img, 0.6, color_mask, 0.4, 0)
+
+        cv2.imshow('Predicted Segmentation', overlay)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
 
 
 @hydra.main(version_base="1.3", config_path="../configs", config_name="predict.yaml")
