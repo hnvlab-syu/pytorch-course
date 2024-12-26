@@ -29,7 +29,7 @@ L.seed_everything(SEED)
 class SRModel(LightningModule):
     def __init__(
             self,
-            model,   # model(net): 실제 네트워크 구조, SRMoel: training, validation, testing 로직을 포함한 전체 모듈
+            model,   # model/net: 실제 네트워크 구조, SRMoel: training, validation, testing 로직을 포함한 전체 모듈
             # optimizer: torch.optim.Optimizer,   
             # scheduler: torch.optim.lr_scheduler,  
             # compile: bool,
