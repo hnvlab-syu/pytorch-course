@@ -15,7 +15,7 @@ pytorch-course/*/*/dataset/*
 !pytorch-course/*/*/dataset/*.txt
 
 **/datasets/**
-pytorch-course/*/*/datasets/*
+# pytorch-course/*/*/datasets/*
 !pytorch-course/*/*/datasets/.gitkeep
 !pytorch-course/*/*/datasets/*.txt
 
