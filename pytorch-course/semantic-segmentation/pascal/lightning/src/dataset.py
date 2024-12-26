@@ -1,59 +1,24 @@
 import os
-import numpy as np
+
 from PIL import Image
+from sklearn.model_selection import train_test_split
+
 import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms
 import lightning as L
 
-SEED = 36
-L.seed_everything(SEED)
+from src.utils import preprocess_mask, SEED
 
-
-def preprocess_mask(mask):
-    mask = np.array(mask)
-    mask[mask == 255] = 0   
-    return torch.tensor(mask, dtype=torch.long)
-
-
-class PascalVOC2012Dataset(torch.utils.data.Dataset):
-    def __init__(self, root_dir, image_list, transform=None, mask_transform=None):
-        self.root_dir = root_dir
-        self.image_list = image_list
-        self.transform = transform
-        self.mask_transform = mask_transform
-        self.image_dir = os.path.join(root_dir, 'JPEGImages')
-        self.mask_dir = os.path.join(root_dir, 'SegmentationClass')
-
-    def __len__(self):
-        return len(self.image_list)
-
-    def __getitem__(self, idx):
-        image_name = self.image_list[idx]
-        img_path = os.path.join(self.image_dir, f'{image_name}.jpg')
-        
-        image = Image.open(img_path).convert("RGB")   
-
-        mask_path = os.path.join(self.mask_dir, f'{image_name}.png')
-        mask = Image.open(mask_path)
-
-        
-        if self.transform and not isinstance(image, torch.Tensor):
-            image = self.transform(image)
-        if self.mask_transform and not isinstance(mask, torch.Tensor):
-            mask = self.mask_transform(mask)
-
-        
-
-        mask = preprocess_mask(mask)
-        return image, mask
 
 class PascalVOC2012DataModule(L.LightningDataModule):
-    def __init__(self, data_path: str = './data/VOC2012', batch_size: int = 32, mode: str = 'train', num_workers: int = 4):
+    def __init__(self, data_path: str = '../dataset/VOC2012', batch_size: int = 32, mode: str = 'train', num_classes: int = 21, num_workers: int = 0):
+
         super().__init__()
         self.data_path = data_path
         self.batch_size = batch_size
         self.mode = mode
+        self.num_classes = num_classes
         self.num_workers = num_workers
         self.image_transform = transforms.Compose([
             transforms.Resize((256, 256)),
@@ -61,61 +26,67 @@ class PascalVOC2012DataModule(L.LightningDataModule):
             transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
         ])
         self.mask_transform = transforms.Compose([
-            transforms.Resize((256, 256), interpolation=Image.NEAREST),
+            transforms.Resize((256, 256))
         ])
 
     def setup(self, stage: str = None):
-        if stage == 'fit' or stage is None:
-            train_set_path = os.path.join(self.data_path, 'ImageSets', 'Segmentation', 'train.txt')
-            val_set_path = os.path.join(self.data_path, 'ImageSets', 'Segmentation', 'val.txt')
-            with open(train_set_path, 'r') as f:
+        if self.trainer is not None:
+            if self.batch_size % self.trainer.world_size != 0:
+                raise RuntimeError(
+                    f"Batch size ({self.batch_size}) is not divisible by the number of devices ({self.trainer.world_size})."
+                )
+            self.batch_size_per_device = self.batch_size // self.trainer.world_size
+
+        if self.mode == 'train':
+            with open(os.path.join(self.data_path, 'ImageSets', 'Segmentation', 'train.txt'), 'r') as f:
                 train_list = f.read().splitlines()
-            with open(val_set_path, 'r') as f:
-                val_list = f.read().splitlines()
-
-            self.train_dataset = PascalVOC2012Dataset(
-                root_dir=self.data_path,
-                image_list=train_list,
-                transform=self.image_transform,
-                mask_transform=self.mask_transform
-            )
-            self.val_dataset = PascalVOC2012Dataset(
-                root_dir=self.data_path,
-                image_list=val_list,
-                transform=self.image_transform,
-                mask_transform=self.mask_transform
-            )
-
-        if stage == 'test' or stage is None:
-            test_set_path = os.path.join(self.data_path, 'ImageSets', 'Segmentation', 'trainval.txt')
-            with open(test_set_path, 'r') as f:
+            with open(os.path.join(self.data_path, 'ImageSets', 'Segmentation', 'val.txt'), 'r') as f:
                 test_list = f.read().splitlines()
+            train_list, val_list = train_test_split(train_list, train_size=0.8, shuffle=True, random_state=SEED)
 
-            self.test_dataset = PascalVOC2012Dataset(
-                root_dir=self.data_path,
-                image_list=test_list,
-                transform=self.image_transform,
-                mask_transform=self.mask_transform
-            )
+            train_dataset = self._make_dataset(data_list=train_list)
+            val_dataset = self._make_dataset(data_list=val_list)
+            test_dataset = self._make_dataset(data_list=test_list)
+        else:
+            pred_data = [Image.open(self.data_path).convert('RGB')]
+
+        if stage == 'fit':
+            self.train_dataset = train_dataset
+            self.val_dataset = val_dataset
+
+        if stage == 'test':
+            self.test_dataset = test_dataset
 
         if stage == 'predict':
-           
-            self.pred_dataset = [self.data_path]  
+            self.pred_dataset = pred_data
+
+    def _make_dataset(self, data_list: list):
+        dataset = []
+        for data in data_list:
+            image_path = os.path.join(self.data_path, "JPEGImages", f"{data}.jpg")
+            image = Image.open(image_path).convert("RGB")
+            image = self.image_transform(image)
+
+            seg_image_path = os.path.join(self.data_path, "SegmentationClass", f"{data}.png")
+            mask = Image.open(seg_image_path)
+            target = preprocess_mask(self.mask_transform(mask))
+
+            dataset.append((image, target))
+        return dataset
+    
     def _train_collate_fn(self, batch):
-        images, masks = zip(*batch)
+        images, targets = zip(*batch)
         images = torch.stack(images)  
-        masks = torch.stack(masks)    
-        return images, masks
+        targets = torch.stack(targets)    
+        return images, targets
 
     def _predict_collate_fn(self, batch):
-        img_path = batch[0]
-        img = Image.open(img_path).convert("RGB")
+        img = batch[0]
         input_tensor = self.image_transform(img)
         return input_tensor.unsqueeze(0)  
 
     def train_dataloader(self):
-        return DataLoader(
-            self.train_dataset, 
+        return DataLoader(self.train_dataset, 
             batch_size=self.batch_size, 
             shuffle=True, 
             num_workers=self.num_workers, 
@@ -133,17 +104,17 @@ class PascalVOC2012DataModule(L.LightningDataModule):
 
     def test_dataloader(self):
         return DataLoader(
-            self.test_dataset, 
-            batch_size=self.batch_size, 
-            shuffle=False, 
-            num_workers=self.num_workers, 
+            self.test_dataset,
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=self.num_workers,
             collate_fn=self._train_collate_fn
         )
 
     def predict_dataloader(self):
         return DataLoader(
-            self.pred_dataset, 
-            batch_size=1, 
-            num_workers=self.num_workers, 
+            self.pred_dataset,
+            batch_size=self.batch_size,
+            num_workers=self.num_workers,
             collate_fn=self._predict_collate_fn
         )
