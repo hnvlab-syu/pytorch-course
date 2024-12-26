@@ -17,6 +17,7 @@ pytorch-course/*/*/dataset/*
 pytorch-course/*/*/datasets/*
 !pytorch-course/*/*/datasets/.gitkeep
 !pytorch-course/*/*/datasets/*.txt
+**/datasets/**
 
 # Ignore model files
 *.pth
