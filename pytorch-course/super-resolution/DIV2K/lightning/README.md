@@ -13,10 +13,12 @@ Download Path: /super-resolution/DIV2K/datasets/
 
 ## BasicSR
 Ref. <https://github.com/XPixelGroup/BasicSR.git>    ---docs/INSTALL.md
+- git clone 후, submodule 적용
 ```
+git submodule init
+git submodule update
 pip install basicsr
 ```
-
 
 ## DIV2K Preparation Steps
 Ref. BasicSR/docs/DatasetPreparation.md
