@@ -13,6 +13,7 @@ from src.utils import preprocess_mask, SEED
 
 class PascalVOC2012DataModule(L.LightningDataModule):
     def __init__(self, data_path: str = '../dataset/VOC2012', batch_size: int = 32, mode: str = 'train', num_classes: int = 21, num_workers: int = 0):
+
         super().__init__()
         self.data_path = data_path
         self.batch_size = batch_size
@@ -103,17 +104,17 @@ class PascalVOC2012DataModule(L.LightningDataModule):
 
     def test_dataloader(self):
         return DataLoader(
-            self.test_dataset, 
-            batch_size=self.batch_size, 
-            shuffle=False, 
-            num_workers=self.num_workers, 
+            self.test_dataset,
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=self.num_workers,
             collate_fn=self._train_collate_fn
         )
 
     def predict_dataloader(self):
         return DataLoader(
-            self.pred_dataset, 
+            self.pred_dataset,
             batch_size=self.batch_size,
-            num_workers=self.num_workers, 
+            num_workers=self.num_workers,
             collate_fn=self._predict_collate_fn
         )

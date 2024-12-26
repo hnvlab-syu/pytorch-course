@@ -25,7 +25,7 @@ log = RankedLogger(__name__, rank_zero_only=True)
 
 @task_wrapper
 def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
-    # set seed for random number generators in pytorch, numpy and python.random
+    
     if cfg.get("seed"):
         L.seed_everything(cfg.seed, workers=True)
 
@@ -74,7 +74,7 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
 
     test_metrics = trainer.callback_metrics
 
-    # merge train and test metrics
+   
     metric_dict = {**train_metrics, **test_metrics}
 
     return metric_dict, object_dict
@@ -84,10 +84,10 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
 def main(cfg: DictConfig) -> Optional[float]:
     extras(cfg)
 
-    # train the model
+   
     metric_dict, _ = train(cfg)
 
-    # safely retrieve metric value for hydra-based hyperparameter optimization
+    
     metric_value = get_metric_value(
         metric_dict=metric_dict, metric_name=cfg.get("optimized_metric")
     )

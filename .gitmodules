@@ -1,0 +1,3 @@
+[submodule "pytorch-course/super-resolution/DIV2K/BasicSR"]
+	path = pytorch-course/super-resolution/DIV2K/BasicSR
+	url = https://github.com/XPixelGroup/BasicSR.git

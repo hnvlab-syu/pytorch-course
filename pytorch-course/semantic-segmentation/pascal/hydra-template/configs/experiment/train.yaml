@@ -1,8 +1,8 @@
 # @package _global_
 
 defaults:
-  - override /data: imagenet
-  - override /model: imagenet
+  - override /data: pascal
+  - override /model: pascal
   - override /callbacks: default
   - override /trainer: gpu
   - override /logger: wandb

@@ -37,7 +37,6 @@ class SegmentationModel(L.LightningModule):
 
     def training_step(self, batch, batch_idx):
         inputs, target = batch
-        
         output = self(inputs)
         loss = self.loss_fn(output, target)
 
@@ -119,7 +118,7 @@ def main(segmentation_model, data, batch, epoch, save_path, device, gpus, precis
     elif device == 'cpu':
         gpus = 'auto'
         precision = 32
-
+        
     if mode == 'train':
         checkpoint_callback = ModelCheckpoint(
             monitor='val_epoch_loss',
@@ -143,6 +142,7 @@ def main(segmentation_model, data, batch, epoch, save_path, device, gpus, precis
             logger=wandb_logger,
             callbacks=[checkpoint_callback, early_stopping],
         )
+        
         trainer.fit(model, PascalVOC2012DataModule(data, batch, 'train', num_classes, num_workers=0))
         trainer.test(model, PascalVOC2012DataModule(data, batch, 'train', num_classes, num_workers=0))
 
@@ -152,7 +152,7 @@ def main(segmentation_model, data, batch, epoch, save_path, device, gpus, precis
             devices=gpus,
             precision=precision
         )
-       
+        
         model = SegmentationModel.load_from_checkpoint(
             checkpoint_path=ckpt,
             model=create_model(segmentation_model),
@@ -165,7 +165,7 @@ def main(segmentation_model, data, batch, epoch, save_path, device, gpus, precis
             pred_mask = pred.squeeze().cpu().numpy()  
             img = cv2.imread(data)  
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  
-
+            
             pred_mask = np.argmax(pred_mask, axis=0)  
             pred_mask = cv2.resize(pred_mask, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_NEAREST)
             pred_mask = (pred_mask / pred_mask.max() * 255).astype(np.uint8)
