@@ -50,18 +50,18 @@ def predict(cfg: DictConfig) -> None:
 
     log.info("Starting predicting!")
     output = trainer.predict(model=model, datamodule=datamodule, ckpt_path=cfg.ckpt_path)
-    print('------------predict.py > output---------------\n', output)
+    # print('------------predict.py > output---------------\n', output)
 
     save_dir = cfg.output_dir   # os.path.join(cfg.root_dir, 'output')
     os.makedirs(save_dir, exist_ok=True)
 
     for i, output in enumerate(output):
-        print('---------------------shape---------------------')
-        print(output.shape)     # 
+        # print('---------------------shape---------------------')
+        # print(output.shape)     
         img_np = output.cpu().numpy().squeeze().transpose(1, 2, 0)   # squeeze(차원 따로 설정 안 했을 경우, 1인 차원 전부 제거)
-        print(img_np)
+        # print(img_np)
         img_np = (img_np * 255).clip(0, 255).astype(np.uint8)   ##########
-        print(img_np)
+        # print(img_np)
 
         im = Image.fromarray(img_np)   ########## cv2말고 PIL로
         im.save(os.path.join(save_dir, f'output.png'))
