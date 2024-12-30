@@ -1,30 +1,42 @@
 # @package _global_
 
 defaults:
-  - override /data: imagenet
-  - override /model: imagenet
+  - override /paths: default  ##
+  - override /data: div2k
+  - override /model: div2k
   - override /callbacks: default
   - override /trainer: gpu
   - override /logger: wandb
 
-# tags: ["imagenet", "efficientnet"]
+tags: ["div2k", "EDSR"]   # realesrgan
 
 seed: 36
 
 trainer:
-  min_epochs: 5
-  max_epochs: 30
+  # min_epochs: 5
+  max_epochs: 150
   precision: "16-mixed"
 
 model:
   net:
-    # model: "efficientnet"
+    model: "EDSR"    # realesrgan
 
 data:
-  batch_size: 128
+  batch_size: 8
 
 callbacks:
   early_stopping:
-    monitor: "val/acc"
-    patience: 5
+    monitor: "val/psnr"
+    patience: 15
     mode: "max"
+  
+  # early_stopping_ssim:
+  #   monitor: "val/ssim"
+  #   patience: 10
+  #   mode: "max"
+
+  # model_checkpoint_ssim:
+  #   monitor: "val/ssim"
+  #   dirpath: ${paths.output_dir}/checkpoints
+  #   filename: "epoch_{epoch:03d}_{val/ssim:.4f}"
+  #   mode: "max"

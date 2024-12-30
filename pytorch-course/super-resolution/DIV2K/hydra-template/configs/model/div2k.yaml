@@ -1,4 +1,4 @@
-_target_: src.models.model.ClassficationModel
+_target_: src.models.model.SRModel
 
 optimizer:
   _target_: torch.optim.Adam
@@ -14,10 +14,12 @@ scheduler:
   patience: 10
 
 net:
-  _target_: src.models.components.classification_model.create_model
-  model: resnet
+  _target_: src.models.components.sr_model.create_model
+  model: "EDSR"
+  weight_path: ${paths.weight_dir}  # model.py
+  upscale: 4
 
 # compile model for faster training with pytorch 2.0
 compile: false
 
-num_classes: 1000
+# num_classes: 1000

@@ -6,17 +6,34 @@ defaults:
   - _self_
 
 model_checkpoint:
+  _target_: lightning.pytorch.callbacks.ModelCheckpoint
   dirpath: ${paths.output_dir}/checkpoints
-  filename: "epoch_{epoch:03d}_{val/acc:.4f}"
-  monitor: "val/acc"
+  filename: "epoch_{epoch:03d}_{val/psnr:.4f}"
+  monitor: "val/psnr"
   mode: "max"
   save_last: True
   auto_insert_metric_name: False
 
+# model_checkpoint_ssim:
+#   _target_: lightning.pytorch.callbacks.ModelCheckpoint
+#   dirpath: ${paths.output_dir}/checkpoints
+#   filename: "epoch_{epoch:03d}_{val/acc:.4f}"
+#   monitor: "val/ssim"
+#   mode: "max"
+#   save_last: True
+#   auto_insert_metric_name: False
+
 early_stopping:
-  monitor: "val/acc"
+  _target_: lightning.pytorch.callbacks.EarlyStopping
+  monitor: "val/psnr"
   patience: 100
   mode: "max"
+
+# early_stopping_ssim:
+#   _target_: lightning.pytorch.callbacks.EarlyStopping
+#   monitor: "val/ssim"
+#   patience: 100
+#   mode: "max"
 
 model_summary:
   max_depth: -1

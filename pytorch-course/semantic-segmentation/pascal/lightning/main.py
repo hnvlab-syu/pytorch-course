@@ -37,7 +37,6 @@ class SegmentationModel(L.LightningModule):
 
     def training_step(self, batch, batch_idx):
         inputs, target = batch
-        
         output = self(inputs)
         loss = self.loss_fn(output, target)
 
@@ -119,7 +118,7 @@ def main(segmentation_model, data, batch, epoch, save_path, device, gpus, precis
     elif device == 'cpu':
         gpus = 'auto'
         precision = 32
-
+        
     if mode == 'train':
         checkpoint_callback = ModelCheckpoint(
             monitor='val_epoch_loss',
@@ -152,7 +151,7 @@ def main(segmentation_model, data, batch, epoch, save_path, device, gpus, precis
             devices=gpus,
             precision=precision
         )
-       
+        
         model = SegmentationModel.load_from_checkpoint(
             checkpoint_path=ckpt,
             model=create_model(segmentation_model),
