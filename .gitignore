@@ -9,10 +9,6 @@ checkpoint
 !**/dataset/.gitkeep
 !**/dataset/*.txt
 !**/dataset/*.jpg
-**/data/**
-!**/data/.gitkeep
-!**/data/*.txt
-!**/data/*.jpg
 # pytorch-course/*/*/data/*
 # !pytorch-course/*/*/data/README.md
 # !pytorch-course/*/*/data/.gitkeep
