@@ -12,6 +12,8 @@ Pascal VOC 2012 데이터셋의 Validation 데이터셋을 사용함
 - 다음과 같은 형식이 되어야 함
 ```shell
 |-- dataset
+|-- |-- example.jpg
+|-- |-- example2.jpg
 `-- |-- VOC2012
         |-- Annotations
         |   |-- 2007_000027.xml
