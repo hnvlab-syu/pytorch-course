@@ -23,6 +23,7 @@ python test.py -c your_model_checkpoint
 
 ## 예측
 주의: 현재 디렉토리에서 다음 명령어 사용할 것
+
 predict는 이미지 하나를 예측하는 작업임
 ```shell
 python main.py -mo predict -d your_image_path -c your_model_checkpoint
