@@ -13,13 +13,12 @@ from src.utils import SEED
 
 
 class PascalVOC2012DataModule(L.LightningDataModule):
-    def __init__(self, data_path: str = '../dataset/VOC2012', batch_size: int = 32, mode: str = 'train', num_classes: int = 21, num_workers: int = 0):
+    def __init__(self, data_path: str = '../dataset/VOC2012', batch_size: int = 32, mode: str = 'train', num_workers: int = 0):
 
         super().__init__()
         self.data_path = data_path
         self.batch_size = batch_size
         self.mode = mode
-        self.num_classes = num_classes
         self.num_workers = num_workers
         self.image_transform = transforms.Compose([
             transforms.Resize((256, 256)),
