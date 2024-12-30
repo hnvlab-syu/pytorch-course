@@ -8,7 +8,7 @@ Pascal VOC 2012 데이터셋의 Validation 데이터셋을 사용함
 ## 다운로드
 - 접속 권한 확인 후 HnVLab Synology 접속 [Here](https://hnvlab.synology.me:5001/)
 - VOCtrainval_11-May-2012.tar 파일을 다운로드
-- 현재경로의 dataset 폴더에 압축해제 및 중간 디렉토리 제거거
+- 현재경로의 dataset 폴더에 압축해제 및 중간 디렉토리 제거
 - 다음과 같은 형식이 되어야 함
 ```shell
 |-- dataset

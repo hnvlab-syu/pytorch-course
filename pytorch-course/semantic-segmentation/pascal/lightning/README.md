@@ -20,5 +20,5 @@ python main.py
 python main.py -mo predict -d your_image_path -c your_model_checkpoint
 ```
 - `-mo predict`: 수행할 작업 선택(`train` or `predict`) 
-- `-d`: 예측에 사용할 이미지 경로
+- `-d`: 예측에 사용할 이미지 경로(ex: `'../dataset/example.jpg'`)
 - `-c`: 예측에 사용할 모델 파라미터 체크포인트 경로

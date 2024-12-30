@@ -1,3 +1,4 @@
+import os
 import argparse
 
 import cv2
@@ -14,7 +15,8 @@ def main(model_name, data_dir, device, ckpt):
     model = create_model(model=model_name).to(device)
     model.load_state_dict(torch.load(ckpt))
 
-    inputs = Image.open(data_dir).convert("RGB")
+    image_dir = os.path.join(data_dir)
+    inputs = Image.open(image_dir).convert("RGB")
     pred_transform = get_transform(subject='pred')
     inputs = pred_transform(inputs).unsqueeze(0).to(device)
 
@@ -46,7 +48,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--model', type=str, default='deeplabv3')
-    parser.add_argument('-d', '--data_path', dest='data', type=str, default='../dataset/VOC2012')
+    parser.add_argument('-d', '--data_path', dest='data', type=str, default='../dataset/example.jpg')
     parser.add_argument('-dc', '--device', type=str, default='cuda')
     parser.add_argument('-c', '--ckpt_path', dest='ckpt', type=str, default='./checkpoint/')
     args = parser.parse_args()
