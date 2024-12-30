@@ -6,7 +6,8 @@ import cv2
 
 import torch
 from torch import nn
-import torchmetrics
+from torchmetrics import MeanMetric, MaxMetric
+from torchmetrics.functional import jaccard_index
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
 from lightning.pytorch.loggers import WandbLogger
@@ -26,10 +27,13 @@ class SegmentationModel(L.LightningModule):
         self.batch_size = batch_size
         self.loss_fn = nn.CrossEntropyLoss()
         
-        self.train_iou = torchmetrics.JaccardIndex(task='multiclass', num_classes=num_classes)
-        self.val_iou = torchmetrics.JaccardIndex(task='multiclass', num_classes=num_classes)
-        self.test_iou = torchmetrics.JaccardIndex(task='multiclass', num_classes=num_classes)
-        
+        self.train_loss = MeanMetric()
+        self.train_miou = MeanMetric()
+        self.val_loss = MeanMetric()
+        self.val_miou = MeanMetric()
+        self.val_miou_best = MaxMetric()
+        self.test_loss = MeanMetric()
+        self.test_miou = MeanMetric()       
         self.losses = []
 
     def forward(self, inputs):
@@ -40,10 +44,17 @@ class SegmentationModel(L.LightningModule):
         output = self(inputs)
         loss = self.loss_fn(output, target)
 
-        # predictions = torch.argmax(output, dim=1)
+        predictions = torch.argmax(output, dim=1)
+
+        self.train_loss(loss)
+        self.log("train_loss", self.train_loss, on_step=True, on_epoch=True, prog_bar=True)
+
+        miou = jaccard_index(predictions, target, num_classes=self.num_classes, task="multiclass")
+        self.train_miou(miou)
+        self.log("train_miou", self.train_miou, on_step=True, on_epoch=True, prog_bar=True)
+
         # visualize_batch(inputs, target, predictions)
 
-        self.log('train_loss', loss)
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -52,23 +63,23 @@ class SegmentationModel(L.LightningModule):
         loss = self.loss_fn(output, target)
         
         predictions = torch.argmax(output, dim=1)
-        self.val_iou.update(predictions, target)
+
+        self.val_loss(loss)
+        self.log("val_loss", self.val_loss, on_step=True, on_epoch=True, prog_bar=True)
+
+        miou = jaccard_index(predictions, target, num_classes=self.num_classes, task="multiclass")
+        self.val_miou(miou)
+        self.log("val_miou", self.val_miou, on_step=True, on_epoch=True, prog_bar=True)
 
         # visualize_batch(inputs, target, predictions)
         
-        self.losses.append(loss)
-        self.log('valid_loss', loss)
         return loss
 
     def on_validation_epoch_end(self):
-        miou = self.val_iou.compute()
-        avg_loss = torch.stack(self.losses).mean()
-        
-        self.log('val_miou', miou)
-        self.log('val_epoch_loss', avg_loss)
-        
-        self.val_iou.reset()
-        self.losses.clear()
+        best_miou = self.val_miou.compute()
+
+        self.val_miou_best(best_miou)
+        self.log("val_miou_best", self.val_miou_best.compute(), sync_dist=True, prog_bar=True)
 
     def test_step(self, batch, batch_idx):
         inputs, target = batch
@@ -76,23 +87,24 @@ class SegmentationModel(L.LightningModule):
         loss = self.loss_fn(output, target)
 
         predictions = torch.argmax(output, dim=1)
-        self.test_iou.update(predictions, target)
+
+        self.test_loss(loss)
+        self.log("test_loss", self.test_loss, on_step=True, on_epoch=True, prog_bar=True)
+
+        miou = jaccard_index(predictions, target, num_classes=self.num_classes, task="multiclass")
+        self.test_miou(miou)
+        self.log("test_miou", self.test_miou, on_step=True, on_epoch=True, prog_bar=True)
         
         # visualize_batch(inputs, target, predictions)
-        
-        self.losses.append(loss)
-        self.log('test_loss', loss)
+
         return loss
 
     def on_test_epoch_end(self):
-        miou = self.test_iou.compute()
-        avg_loss = torch.stack(self.losses).mean()
+        avg_loss = self.test_loss.compute()
+        avg_miou = self.test_miou.compute()
         
-        self.log('test_epoch_loss', avg_loss)
-        self.log('test_epoch_miou', miou)
-        
-        self.test_iou.reset()
-        self.losses.clear()
+        self.log("test_miou_final", avg_miou, prog_bar=True)
+        self.log("test_loss_final", avg_loss, prog_bar=True)
 
     def configure_optimizers(self):
         return torch.optim.SGD(self.model.parameters(), lr=1e-3, momentum=0.9)
@@ -121,18 +133,18 @@ def main(segmentation_model, data, batch, epoch, save_path, device, gpus, precis
         
     if mode == 'train':
         checkpoint_callback = ModelCheckpoint(
-            monitor='val_epoch_loss',
+            monitor='val_loss',
             mode='min',
             dirpath=f'{save_path}',
-            filename=f'{segmentation_model}-'+'{epoch:02d}-{val_epoch_loss:.2f}',
+            filename=f'{segmentation_model}-'+'{epoch:02d}-{val_loss:.2f}',
             save_top_k=1,
         )
         early_stopping = EarlyStopping(
-            monitor='val_epoch_loss',
+            monitor='val_loss',
             mode='min',
             patience=10
         )
-        wandb_logger = WandbLogger(project="VOC_Segmentation")
+        wandb_logger = WandbLogger(project="pascal-semanticsegmentation")
 
         trainer = L.Trainer(
             accelerator=device,

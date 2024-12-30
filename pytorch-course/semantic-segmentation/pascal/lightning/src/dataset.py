@@ -70,17 +70,17 @@ class PascalVOC2012DataModule(L.LightningDataModule):
 
             seg_image_path = os.path.join(self.data_path, "SegmentationClass", f"{data}.png")
             mask = Image.open(seg_image_path)
-            target = self._preprocess_mask(self.mask_transform(mask))
+            mask = self.mask_transform(mask)
+            target = self._preprocess_mask(mask)
 
             dataset.append((image, target))
         return dataset
     
-    def _preprocess_mask(mask):
+    def _preprocess_mask(self, mask):
         mask = np.array(mask)
-        mask[mask == 255] = 0   
+        mask[mask == 255] = 0
         return torch.tensor(mask, dtype=torch.long)
 
-    
     def _train_collate_fn(self, batch):
         images, targets = zip(*batch)
         images = torch.stack(images)  
