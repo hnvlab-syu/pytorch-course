@@ -15,7 +15,6 @@ from basicsr.data.transforms import augment, paired_random_crop
 SEED = 36
 L.seed_everything(SEED)
 
-
 class DIV2KDataModule(L.LightningDataModule):
     def __init__(
         self,
@@ -36,7 +35,6 @@ class DIV2KDataModule(L.LightningDataModule):
             self.transform = transforms.Compose([
                 transforms.ToTensor(),
             ])
-
             if not self.lr_dataset or not self.hr_dataset:
                 raise RuntimeError(f"No images found in {lr_dir} or {hr_dir}")
             if len(self.lr_dataset) != len(self.hr_dataset):
@@ -85,7 +83,6 @@ class DIV2KDataModule(L.LightningDataModule):
         if stage == "predict":
             self.pred_dataset = pred_data
 
-
     def _train_collate_fn(self, batch):
         lr_list = []
         hr_list = []
@@ -119,18 +116,12 @@ class DIV2KDataModule(L.LightningDataModule):
             hr_list.append(hr_img)
 
         return torch.stack(lr_list), torch.stack(hr_list)
-    
-    # def _val_test_collate_fn(self, batch):
-    #     img = batch[0]
-    #     input = self.transform(img).unsqueeze(0)
-    #     return input    # , np.array(img)     # 변환된 이미지, 원본 이미지
 
     def _predict_collate_fn(self, batch):
         img = batch[0]
         input = self.transform(img).unsqueeze(0)
         return input
     
-
     def train_dataloader(self):
         return DataLoader(
             self.train_dataset, 
@@ -140,7 +131,6 @@ class DIV2KDataModule(L.LightningDataModule):
             collate_fn=self._train_collate_fn,
             shuffle=True)
                         
-
     def val_dataloader(self):
         return DataLoader(
             self.val_dataset, 
@@ -148,7 +138,6 @@ class DIV2KDataModule(L.LightningDataModule):
             num_workers=self.num_workers, 
             pin_memory=self.pin_memory, 
             collate_fn=self._train_collate_fn)
-
 
     def test_dataloader(self):
         return DataLoader(
@@ -158,7 +147,6 @@ class DIV2KDataModule(L.LightningDataModule):
             pin_memory=self.pin_memory,
             collate_fn=self._train_collate_fn)
 
-
     def predict_dataloader(self):
         return DataLoader(
             self.pred_dataset, 
@@ -166,4 +154,3 @@ class DIV2KDataModule(L.LightningDataModule):
             num_workers=self.num_workers, 
             pin_memory=self.pin_memory,
             collate_fn=self._predict_collate_fn)
-

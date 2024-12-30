@@ -18,7 +18,7 @@ Lightning-Hydra-Template을 기반으로 작성 [Here](https://github.com/ashlev
 │   └── train.yaml               <- Main config for training
 ```
 ## 훈련
-주의: 현재 디렉토리에서 아래 명령어 사용해야 함
+주의: (lightning code 먼저 돌린 후) 현재 디렉토리에서 아래 명령어 사용해야 함
 ```shell
 python src/train.py
 

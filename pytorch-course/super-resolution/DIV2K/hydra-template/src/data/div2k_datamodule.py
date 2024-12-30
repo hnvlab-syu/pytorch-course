@@ -15,7 +15,6 @@ from basicsr.data.transforms import augment, paired_random_crop
 SEED = 36
 L.seed_everything(SEED)
 
-
 class DIV2KDataModule(L.LightningDataModule):
     def __init__(
         self,
@@ -85,7 +84,6 @@ class DIV2KDataModule(L.LightningDataModule):
         if stage == "predict":
             self.pred_dataset = pred_data
 
-
     def _train_collate_fn(self, batch):
         lr_list = []
         hr_list = []
@@ -130,7 +128,6 @@ class DIV2KDataModule(L.LightningDataModule):
         input = self.transform(img).unsqueeze(0)
         return input
     
-
     def train_dataloader(self):
         return DataLoader(
             self.train_dataset, 
@@ -139,7 +136,6 @@ class DIV2KDataModule(L.LightningDataModule):
             pin_memory=self.pin_memory, 
             collate_fn=self._train_collate_fn,
             shuffle=True)
-                        
 
     def val_dataloader(self):
         return DataLoader(
@@ -149,7 +145,6 @@ class DIV2KDataModule(L.LightningDataModule):
             pin_memory=self.pin_memory, 
             collate_fn=self._train_collate_fn)
 
-
     def test_dataloader(self):
         return DataLoader(
             self.test_dataset, 
@@ -158,7 +153,6 @@ class DIV2KDataModule(L.LightningDataModule):
             pin_memory=self.pin_memory,
             collate_fn=self._train_collate_fn)
 
-
     def predict_dataloader(self):
         return DataLoader(
             self.pred_dataset, 
@@ -166,4 +160,3 @@ class DIV2KDataModule(L.LightningDataModule):
             num_workers=self.num_workers, 
             pin_memory=self.pin_memory,
             collate_fn=self._predict_collate_fn)
-
