@@ -29,7 +29,7 @@ L.seed_everything(SEED)
 class SRModel(LightningModule):
     def __init__(
             self,
-            model,   # model(net): 실제 네트워크 구조, SRMoel: training, validation, testing 로직을 포함한 전체 모듈
+            model,   # model/net: 실제 네트워크 구조, SRMoel: training, validation, testing 로직을 포함한 전체 모듈
             # optimizer: torch.optim.Optimizer,   
             # scheduler: torch.optim.lr_scheduler,  
             # compile: bool,
@@ -66,6 +66,8 @@ class SRModel(LightningModule):
 
     def on_train_start(self):
         self.val_loss.reset()
+        self.val_psnr.reset()
+        self.val_ssim.reset()
         self.val_psnr_best.reset()
         self.val_ssim_best.reset()
 
@@ -108,11 +110,12 @@ class SRModel(LightningModule):
             self._log_images(lr_imgs[0], sr_imgs[0], hr_imgs[0])
 
     def on_validation_epoch_end(self):
-        psnr = self.val_psnr.compute()
-        self.val_psnr_best(psnr)
+        psnr = self.val_psnr.compute()  # get current val acc
+        self.val_psnr_best(psnr)    # update best so far val acc
         ssim = self.val_ssim.compute()
         self.val_ssim_best(ssim)
-
+        # log `val_acc_best` as a value through `.compute()` method, instead of as a metric object
+        # otherwise metric would be reset by lightning after each epoch
         self.log("val/psnr_best", self.val_psnr_best.compute(), sync_dist=True, prog_bar=True)
         self.log("val/ssim_best", self.val_ssim_best.compute(), sync_dist=True, prog_bar=True)
 

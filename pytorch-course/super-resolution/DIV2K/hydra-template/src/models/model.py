@@ -21,7 +21,7 @@ class SRModel(LightningModule):
         super().__init__()
         self.save_hyperparameters(logger=False)
 
-        self.net = net  ##############
+        self.net = net
 
         self.loss_fn = torch.nn.L1Loss()    # self.criterion
 
@@ -43,11 +43,13 @@ class SRModel(LightningModule):
         self.val_ssim_best = MaxMetric()
         self.test_ssim_best = MaxMetric()
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor: # self() == self.model(inputs)
-        return self.net(x)  ##############
+    def forward(self, x: torch.Tensor) -> torch.Tensor: # self() == self.net(inputs)
+        return self.net(x)  
 
     def on_train_start(self):
         self.val_loss.reset()
+        self.val_psnr.reset()
+        self.val_ssim.reset()
         self.val_psnr_best.reset()
         self.val_ssim_best.reset()
 
@@ -142,7 +144,6 @@ class SRModel(LightningModule):
             self.net = torch.compile(self.net)
 
     def configure_optimizers(self) -> Dict[str, Any]:
-        # optimizer = self.hparams.optimizer(params=self.trainer.model.parameters())
         optimizer = self.hparams.optimizer(params=self.parameters())
         if self.hparams.scheduler is not None:
             scheduler = self.hparams.scheduler(optimizer=optimizer)
