@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 from PIL import Image
 from sklearn.model_selection import train_test_split
 
@@ -8,7 +9,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 import lightning as L
 
-from src.utils import preprocess_mask, SEED
+from src.utils import SEED
 
 
 class PascalVOC2012DataModule(L.LightningDataModule):
@@ -69,10 +70,16 @@ class PascalVOC2012DataModule(L.LightningDataModule):
 
             seg_image_path = os.path.join(self.data_path, "SegmentationClass", f"{data}.png")
             mask = Image.open(seg_image_path)
-            target = preprocess_mask(self.mask_transform(mask))
+            target = self._preprocess_mask(self.mask_transform(mask))
 
             dataset.append((image, target))
         return dataset
+    
+    def _preprocess_mask(mask):
+        mask = np.array(mask)
+        mask[mask == 255] = 0   
+        return torch.tensor(mask, dtype=torch.long)
+
     
     def _train_collate_fn(self, batch):
         images, targets = zip(*batch)
