@@ -21,7 +21,7 @@ class SRModel(LightningModule):
         super().__init__()
         self.save_hyperparameters(logger=False)
 
-        self.net = net  ##############
+        self.net = net
 
         self.loss_fn = torch.nn.L1Loss()    # self.criterion
 
@@ -37,120 +37,85 @@ class SRModel(LightningModule):
         self.val_ssim = StructuralSimilarityIndexMeasure()
         self.test_ssim = StructuralSimilarityIndexMeasure()
 
-        # self.val_psnr_best = MaxMetric()
-        # self.test_psnr_best = MaxMetric()
+        self.val_psnr_best = MaxMetric()
+        self.test_psnr_best = MaxMetric()
 
-        # self.val_ssim_best = MaxMetric()
-        # self.test_ssim_best = MaxMetric()
+        self.val_ssim_best = MaxMetric()
+        self.test_ssim_best = MaxMetric()
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor: # self() == self.model(inputs)
-        # 3-> 12 channels  *realesrgan일 때 필요 (입력 12채널)*
-        # inputs = torch.cat([inputs, inputs, inputs, inputs], dim=1) or # x = torch.cat([x] * 4, dim=1)    
-        # return self.model(inputs)
-        return self.net(x)  ##############
+    def forward(self, x: torch.Tensor) -> torch.Tensor: # self() == self.net(inputs)
+        return self.net(x)  
 
     def on_train_start(self):
-        self.train_loss.reset()
         self.val_loss.reset()
-        self.test_loss.reset()
-
-        # self.val_psnr_best.reset()
-        # self.test_psnr_best.reset()
-        # self.val_ssim_best.reset()
-        # self.test_ssim_best.reset()
+        self.val_psnr.reset()
+        self.val_ssim.reset()
+        self.val_psnr_best.reset()
+        self.val_ssim_best.reset()
 
     def model_step(
             self, 
             batch: Tuple[torch.Tensor, torch.Tensor]  # (저해상도 이미지, 고해상도 이미지)
         ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         lr_imgs, hr_imgs = batch
-
         sr_imgs = self.forward(lr_imgs)  # sr: 생성된 고해상도
         loss = self.loss_fn(sr_imgs, hr_imgs)  # L1Loss로 복원 품질 측정
-
-        # # 이미지 품질 메트릭 계산 (PSNR, SSIM)
-        # psnr = self.psnr(sr_imgs, hr_imgs)  
-        # ssim = self.ssim(sr_imgs, hr_imgs)
 
         return loss, lr_imgs, sr_imgs, hr_imgs    
 
     def training_step(self, batch): # 여기서의 batch는 DataLoader가 제공하는 실제 데이터 배치: (lr_imgs, hr_imgs)형태
         loss, _, sr_imgs, hr_imgs = self.model_step(batch)
 
-        self.train_loss.update(loss)
-        psnr = self.train_psnr(sr_imgs, hr_imgs)
-        ssim = self.train_ssim(sr_imgs, hr_imgs)
-        self.log("train_loss", self.train_loss, on_step=True, prog_bar=True)
-        self.log("train_psnr", psnr, on_step=True, prog_bar=True)
-        self.log("train_ssim", ssim, on_step=True, prog_bar=True)
+        self.train_loss(loss)
+        self.train_psnr(sr_imgs, hr_imgs)
+        self.train_ssim(sr_imgs, hr_imgs)
+        self.log("train/loss", self.train_loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("train/psnr", self.train_psnr, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("train/ssim", self.train_ssim, on_step=False, on_epoch=True,prog_bar=True)
+
         return loss
 
     def on_train_epoch_end(self):
-        psnr = self.train_psnr.compute()
-        ssim = self.train_ssim.compute()
-
-        self.log("train_psnr_epoch", psnr, sync_dist=True, on_epoch=True, prog_bar=True)
-        self.log("train_ssim_epoch", ssim, sync_dist=True, on_epoch=True, prog_bar=True)
-        
-        self.train_psnr.reset()
-        self.train_ssim.reset()
+        pass
 
     def validation_step(self, batch, batch_idx):
         loss, lr_imgs, sr_imgs, hr_imgs = self.model_step(batch)
 
-        self.val_loss.update(loss)
-        psnr = self.val_psnr(sr_imgs, hr_imgs)
-        ssim = self.val_ssim(sr_imgs, hr_imgs)
-        self.log("val_loss", self.val_loss, on_step=True, prog_bar=True)
-        self.log("val_psnr", psnr, on_step=True, prog_bar=True)
-        self.log("val_ssim", ssim, on_step=True, prog_bar=True)
+        self.val_loss(loss)
+        self.val_psnr(sr_imgs, hr_imgs)
+        self.val_ssim(sr_imgs, hr_imgs)
+        self.log("val/loss", self.val_loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("val/psnr", self.val_psnr, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("val/ssim", self.val_ssim, on_step=False, on_epoch=True, prog_bar=True)
 
         if batch_idx == 0 and self.logger:
             self._log_images(lr_imgs[0], sr_imgs[0], hr_imgs[0])
 
     def on_validation_epoch_end(self):
-        # psnr = self.val_psnr.compute()
-        # ssim = self.val_ssim.compute()
-        # psnr_best = self.val_psnr_best(self.val_psnr)
-        # ssim_best = self.val_ssim_best(self.val_ssim)
-        # self.log("val/psnr_best", psnr_best, sync_dist=True, prog_bar=True)
-        # self.log("val/ssim_best", ssim_best, sync_dist=True, prog_bar=True)
         psnr = self.val_psnr.compute()
+        self.val_psnr_best(psnr)
         ssim = self.val_ssim.compute()
+        self.val_ssim_best(ssim)
 
-        self.log("val_psnr_epoch", psnr, sync_dist=True, on_epoch=True, prog_bar=True)
-        self.log("val_ssim_epoch", ssim, sync_dist=True, on_epoch=True, prog_bar=True)
-        
-        self.val_psnr.reset()
-        self.val_ssim.reset()
+        self.log("val/psnr_best", self.val_psnr_best.compute(), sync_dist=True, prog_bar=True)
+        self.log("val/ssim_best", self.val_ssim_best.compute(), sync_dist=True, prog_bar=True)
 
     def test_step(self, batch, batch_idx):
         loss, _, sr_imgs, hr_imgs = self.model_step(batch)
 
-        self.test_loss.update(loss)
-        psnr = self.test_psnr(sr_imgs, hr_imgs)
-        ssim = self.test_ssim(sr_imgs, hr_imgs)
-        self.log("test_loss", self.test_loss, on_step=True, on_epoch=True, prog_bar=True)
-        self.log("test_psnr", psnr, on_step=True, on_epoch=True, prog_bar=True)
-        self.log("test_ssim", ssim, on_step=True, on_epoch=True, prog_bar=True)
+        self.test_loss(loss)
+        self.test_psnr(sr_imgs, hr_imgs)
+        self.test_ssim(sr_imgs, hr_imgs)
+        self.log("test/loss", self.test_loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("test/psnr", self.test_psnr, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("test/ssim", self.test_ssim, on_step=False, on_epoch=True, prog_bar=True)
 
     def on_test_epoch_end(self):
-        # """Lightning hook that is called when a test epoch ends."""
-        # acc = self.test_loss.compute()
-        # self.test_acc_best(acc)
-        # self.log("test/acc_best", self.test_acc_best.compute(), sync_dist=True, prog_bar=True)
-        psnr = self.test_psnr.compute()
-        ssim = self.test_ssim.compute()
-
-        self.log("test_psnr_epoch", self.test_psnr, sync_dist=True, prog_bar=True)
-        self.log("test_ssim_epoch", self.test_ssim, sync_dist=True, prog_bar=True)
-        
-        self.test_psnr.reset()
-        self.test_ssim.reset()
+        pass
 
     def predict_step(self, batch, batch_idx):
         # lr_imgs, _ = batch
-        print('----------model.py > predict_step------------', batch.shape)     # (b,C,H,W)
+        # print('----------model.py > predict_step------------', batch.shape)     # (b,C,H,W)
         lr_imgs = batch
         sr_imgs = self(lr_imgs)   # forward
         return sr_imgs
@@ -174,8 +139,11 @@ class SRModel(LightningModule):
                 "HR_image": wandb.Image(hr_pil, caption="HR (480x480)")
             })
 
+    def setup(self, stage: str) -> None:
+        if self.hparams.compile and stage == "fit":
+            self.net = torch.compile(self.net)
+
     def configure_optimizers(self) -> Dict[str, Any]:
-        # optimizer = self.hparams.optimizer(params=self.trainer.model.parameters())
         optimizer = self.hparams.optimizer(params=self.parameters())
         if self.hparams.scheduler is not None:
             scheduler = self.hparams.scheduler(optimizer=optimizer)

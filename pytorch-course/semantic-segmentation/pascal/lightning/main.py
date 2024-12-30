@@ -98,7 +98,7 @@ class SegmentationModel(L.LightningModule):
         return torch.optim.SGD(self.model.parameters(), lr=1e-3, momentum=0.9)
 
 
-def main(segmentation_model, data, batch, epoch, save_path, device, gpus, precision, mode, ckpt):
+def main(segmentation_model, data, batch, epoch, save_path, device, gpus, precision, mode, ckpt, num_workers):
     num_classes = 21
 
     model = SegmentationModel(
@@ -142,9 +142,8 @@ def main(segmentation_model, data, batch, epoch, save_path, device, gpus, precis
             logger=wandb_logger,
             callbacks=[checkpoint_callback, early_stopping],
         )
-        
-        trainer.fit(model, PascalVOC2012DataModule(data, batch, 'train', num_classes, num_workers=0))
-        trainer.test(model, PascalVOC2012DataModule(data, batch, 'train', num_classes, num_workers=0))
+        trainer.fit(model, PascalVOC2012DataModule(data, batch, 'train', num_classes, num_workers=num_workers))
+        trainer.test(model, PascalVOC2012DataModule(data, batch, 'train', num_classes, num_workers=num_workers))
 
     elif mode == 'predict':
         trainer = L.Trainer(
@@ -159,17 +158,17 @@ def main(segmentation_model, data, batch, epoch, save_path, device, gpus, precis
             num_classes=num_classes
         )
 
-        predictions = trainer.predict(model, PascalVOC2012DataModule(data, 1, 'predict', num_classes, num_workers=0))
+        predictions = trainer.predict(model, PascalVOC2012DataModule(data, 1, 'predict', num_classes, num_workers=num_workers))
 
         for pred in predictions:
-            pred_mask = pred.squeeze().cpu().numpy()  
-            img = cv2.imread(data)  
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  
-            
-            pred_mask = np.argmax(pred_mask, axis=0)  
+            pred_mask = pred.squeeze().cpu().numpy()
+            img = cv2.imread(data)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+            pred_mask = np.argmax(pred_mask, axis=0)
             pred_mask = cv2.resize(pred_mask, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_NEAREST)
             pred_mask = (pred_mask / pred_mask.max() * 255).astype(np.uint8)
-            color_mask = cv2.applyColorMap(pred_mask, cv2.COLORMAP_JET)     
+            color_mask = cv2.applyColorMap(pred_mask, cv2.COLORMAP_JET)
             overlay = cv2.addWeighted(img, 0.6, color_mask, 0.4, 0)
 
             cv2.imshow('Predicted Segmentation', overlay)
@@ -179,7 +178,7 @@ def main(segmentation_model, data, batch, epoch, save_path, device, gpus, precis
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-w', '--num_workers', type=int, default=16, help='number of worker processes for data loading')
+    parser.add_argument('-w', '--num_workers', type=int, default=0, help='number of worker processes for data loading')
     parser.add_argument('-m', '--model', type=str, default='deeplabv3')
     parser.add_argument('-b', '--batch_size', dest='batch', type=int, default=32)
     parser.add_argument('-e', '--epoch', type=int, default=10)
@@ -192,4 +191,4 @@ if __name__ == "__main__":
     parser.add_argument('-c', '--ckpt_path', dest='ckpt', type=str, default='./checkpoint/')
     args = parser.parse_args()
     
-    main(args.model, args.data, args.batch, args.epoch, args.save, args.device, args.gpus, args.precision, args.mode, args.ckpt)
+    main(args.model, args.data, args.batch, args.epoch, args.save, args.device, args.gpus, args.precision, args.mode, args.ckpt, args.num_workers)

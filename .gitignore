@@ -5,18 +5,10 @@ wandb
 examples
 checkpoint
 
-
-pytorch-course/*/*/data/*
-!pytorch-course/*/*/data/README.md
-!pytorch-course/*/*/data/.gitkeep
-!pytorch-course/*/*/data/*.txt
-pytorch-course/*/*/dataset/*
-!pytorch-course/*/*/dataset/README.md
-!pytorch-course/*/*/dataset/.gitkeep
-!pytorch-course/*/*/dataset/*.txt
-pytorch-course/*/*/datasets/*
-!pytorch-course/*/*/datasets/.gitkeep
-!pytorch-course/*/*/datasets/*.txt
+**/dataset/**
+!**/dataset/.gitkeep
+!**/dataset/*.txt
+!**/dataset/*.jpg
 
 # Ignore model files
 *.pth
@@ -27,4 +19,4 @@ pytorch-course/*/*/datasets/*
 *.log
 
 # Ignore hydra logs
-pytorch-course/*/*/*/hydra-template/logs/
+**/hydra-template/logs

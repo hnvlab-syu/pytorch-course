@@ -5,6 +5,7 @@ from basicsr.archs.edsr_arch import EDSR
 
 
 def create_model(model: str, weight_path: str | tuple, upscale: int):   # pretrained_path: args.weights
+    '''
     if model.lower() == 'esrgan':
         model = RRDBNet(
             num_in_ch=3,  # RGB
@@ -30,8 +31,9 @@ def create_model(model: str, weight_path: str | tuple, upscale: int):   # pretra
             if 'params' in weights:
                 weights = weights['params']
             model.load_state_dict(weights, strict=False)
+    '''
 
-    elif model.lower() == 'edsr':
+    if model.lower() == 'edsr':
         model = EDSR(
                 num_in_ch=3,
                 num_out_ch=3,
