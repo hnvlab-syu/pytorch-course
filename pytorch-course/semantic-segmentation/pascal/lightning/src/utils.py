@@ -1,6 +1,5 @@
 import numpy as np
 import cv2
-import torch
 
 SEED = 36
 
@@ -24,8 +23,3 @@ def visualize_batch(inputs, target, predictions):
     combined = np.hstack((image_to_show, mask_colored, pred_colored))
     cv2.imshow('Image and Mask', combined)
     cv2.waitKey(0)
-
-def preprocess_mask(mask):
-    mask = np.array(mask)
-    mask[mask == 255] = 0   
-    return torch.tensor(mask, dtype=torch.long)

@@ -266,10 +266,10 @@ def train(
                 }
     )
 
-    csv_path = 'data/global-wheat-detection/train.csv'
-    train_image_dir = 'data/global-wheat-detection/train'
-    train_csv_path = 'data/global-wheat-detection/train_answer.csv'
-    test_csv_path = 'data/global-wheat-detection/test_answer.csv'
+    csv_path = 'dataset/global-wheat-detection/train.csv'
+    train_image_dir = 'dataset/global-wheat-detection/train'
+    train_csv_path = 'dataset/global-wheat-detection/train_answer.csv'
+    test_csv_path = 'dataset/global-wheat-detection/test_answer.csv'
     
     num_classes = 1
     split_dataset(csv_path)
