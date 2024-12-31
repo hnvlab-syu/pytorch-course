@@ -100,8 +100,8 @@ def test(device, image_size):
                name= "test.py_result",
     )
 
-    train_image_dir = 'data/global-wheat-detection/train'
-    test_csv_path = 'data/global-wheat-detection/test_answer.csv'
+    train_image_dir = 'dataset/global-wheat-detection/train'
+    test_csv_path = 'dataset/global-wheat-detection/test_answer.csv'
 
     num_classes = 1
 
