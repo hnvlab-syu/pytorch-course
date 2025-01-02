@@ -27,7 +27,8 @@ from src.utils import (
 log = RankedLogger(__name__, rank_zero_only=True)
 
 def predict(cfg: DictConfig) -> None:
-    assert cfg.ckpt_path
+    assert cfg.ckpt_path, "Checkpoint path (ckpt_path) is required."
+    assert cfg.pred_image, "Prediction image (pred_image) is required."
 
     log.info(f"Instantiating datamodule <{cfg.data._target_}>")
     datamodule: LightningDataModule = hydra.utils.instantiate(cfg.data)
@@ -55,18 +56,18 @@ def predict(cfg: DictConfig) -> None:
 
     log.info("Starting predicting!")
     output = trainer.predict(model=model, datamodule=datamodule, ckpt_path=cfg.ckpt_path)
-    data = './2007_000027.jpg'  
+    image = cfg.pred_image
 
     for pred in output:
         pred_mask = pred.squeeze().cpu().numpy()  
-        img = cv2.imread(data)  
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  
+        image = cv2.imread(image)  
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  
         
         pred_mask = np.argmax(pred_mask, axis=0)  
-        pred_mask = cv2.resize(pred_mask, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_NEAREST)
+        pred_mask = cv2.resize(pred_mask, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_NEAREST)
         pred_mask = (pred_mask / pred_mask.max() * 255).astype(np.uint8)
         color_mask = cv2.applyColorMap(pred_mask, cv2.COLORMAP_JET)     
-        overlay = cv2.addWeighted(img, 0.6, color_mask, 0.4, 0)
+        overlay = cv2.addWeighted(image, 0.6, color_mask, 0.4, 0)
 
         cv2.imshow('Predicted Segmentation', overlay)
         cv2.waitKey(0)
