@@ -1,9 +1,11 @@
 # 데이터셋
 Pascal VOC 2012 데이터셋의 Validation 데이터셋을 사용함
 
-## 환경설정
-1. environment.yaml을 통해 conda 가상환경 생성 및 패키지 설치
-2. requirements.txt를 통해 pip 패키지 설치
+## 가상환경 생성 및 라이브러리 설치
+- `environment.yaml` 파일의 `name` 부분을 원하는 가상환경 이름으로 변경할 것(default: `semant`)
+```shell
+conda env create -f environment.yaml
+```
 
 ## 다운로드
 - 접속 권한 확인 후 HnVLab Synology 접속 [Here](https://hnvlab.synology.me:5001/)
