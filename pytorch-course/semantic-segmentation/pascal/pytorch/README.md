@@ -17,7 +17,7 @@ python train.py
 ## 테스트
 주의: 현재 디렉토리에서 다음 명령어 사용할 것
 ```shell
-python test.py -c your_model_checkpoint
+python test.py -c "your_model_checkpoint"
 ```
 - 인자들을 확인할 것
 
@@ -26,7 +26,7 @@ python test.py -c your_model_checkpoint
 
 predict는 이미지 하나를 예측하는 작업임
 ```shell
-python main.py -mo predict -d your_image_path -c your_model_checkpoint
+python main.py -mo predict -d "your_image_path" -c "your_model_checkpoint"
 ```
 - `-mo predict`: 수행할 작업 선택(`train` or `predict`) 
 - `-d`: 예측에 사용할 이미지 경로(default: `'../dataset/example.jpg'`)

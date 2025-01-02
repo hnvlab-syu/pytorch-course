@@ -17,7 +17,7 @@ python main.py
 ## 예측
 주의: 현재 디렉토리에서 다음 명령어 사용할 것
 ```shell
-python main.py -mo predict -d your_image_path -c your_model_checkpoint
+python main.py -mo predict -d "your_image_path" -c "your_model_checkpoint"
 ```
 - `-mo predict`: 수행할 작업 선택(`train` or `predict`) 
 - `-d`: 예측에 사용할 이미지 경로(ex: `'../dataset/example.jpg'`)
