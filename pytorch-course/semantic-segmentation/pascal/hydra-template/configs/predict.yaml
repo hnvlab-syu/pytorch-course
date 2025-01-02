@@ -2,7 +2,7 @@
 
 defaults:
   - _self_
-  - data: pascal # choose datamodule with `test_dataloader()` for evaluation
+  - data: predict
   - model: pascal
   - logger: null
   - trainer: default
@@ -15,5 +15,5 @@ task_name: "predict"
 
 tags: ["dev"]
 
-# passing checkpoint path is necessary for evaluation
-ckpt_path: ???
+ckpt_path: null
+pred_image: null

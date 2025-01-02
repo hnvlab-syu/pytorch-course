@@ -1,8 +1,11 @@
 from typing import Any, Dict, Tuple
+
 import torch
 from lightning import LightningModule
 from torchmetrics import MeanMetric, MaxMetric
 from torchmetrics.functional import jaccard_index
+
+from src.utils import visualize_batch
 
 
 class SegmentationModel(LightningModule):
@@ -21,10 +24,10 @@ class SegmentationModel(LightningModule):
         self.loss_fn = torch.nn.CrossEntropyLoss()
 
         self.train_loss = MeanMetric()
+        self.train_miou = MeanMetric()
         self.val_loss = MeanMetric()
         self.val_miou = MeanMetric()
         self.val_miou_best = MaxMetric()
-
         self.test_loss = MeanMetric()
         self.test_miou = MeanMetric()
 
@@ -42,34 +45,48 @@ class SegmentationModel(LightningModule):
 
     def training_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> torch.Tensor:
         loss, preds, targets = self.model_step(batch)
+
+        # visualize_batch(batch[0], batch[1], preds)
+
         self.train_loss(loss)
         self.log("train/loss", self.train_loss, on_step=True, on_epoch=True, prog_bar=True)
+
+        train_miou = jaccard_index(preds, targets, num_classes=self.hparams.num_classes, task="multiclass")
+        self.train_miou(train_miou)
+        self.log("train/miou", self.train_miou, on_step=True, on_epoch=True, prog_bar=True)
+
         return loss
+
+    def on_training_epoch_end(self) -> None:
+        self.train_miou.reset()
 
     def validation_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> None:
         loss, preds, targets = self.model_step(batch)
 
+        # visualize_batch(batch[0], batch[1], preds)
+
         self.val_loss(loss)
         self.log("val/loss", self.val_loss, on_step=True, on_epoch=True, prog_bar=True)
 
-        miou = jaccard_index(preds, targets, num_classes=self.hparams.num_classes, task="multiclass")
-        self.val_miou(miou)
+        val_miou = jaccard_index(preds, targets, num_classes=self.hparams.num_classes, task="multiclass")
+        self.val_miou(val_miou)
         self.log("val/miou", self.val_miou, on_step=True, on_epoch=True, prog_bar=True)
 
     def on_validation_epoch_end(self) -> None:
-        best_miou = self.val_miou.compute()
-        self.val_miou_best(best_miou)
+        current_miou = self.val_miou.compute()
+        self.val_miou_best(current_miou)
         self.log("val/miou_best", self.val_miou_best.compute(), sync_dist=True, prog_bar=True)
+
+        self.val_miou.reset()
 
     def test_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> None:
         loss, preds, targets = self.model_step(batch)
 
-        
         self.test_loss(loss)
         self.log("test/loss", self.test_loss, on_step=True, on_epoch=True, prog_bar=True)
 
-        miou = jaccard_index(preds, targets, num_classes=self.hparams.num_classes, task="multiclass")
-        self.test_miou(miou)
+        test_miou = jaccard_index(preds, targets, num_classes=self.hparams.num_classes, task="multiclass")
+        self.test_miou(test_miou)
         self.log("test/miou", self.test_miou, on_step=True, on_epoch=True, prog_bar=True)
 
     def on_test_epoch_end(self) -> None:
