@@ -13,7 +13,7 @@ python train.py
 ## 테스트
 주의: 현재 디렉토리에서 다음 명령어 사용할 것
 ```shell
-python test.py -c "your_model_checkpoint"
+python predict.py -c "your_model_checkpoint"
 ```
 - 인자들을 확인할 것
 
