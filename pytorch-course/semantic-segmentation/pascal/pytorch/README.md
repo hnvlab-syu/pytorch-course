@@ -1,4 +1,4 @@
-# Lightning Semantic Segmentation
+# PyTorch Semantic Segmentation
 
 ## 가상환경 생성 및 라이브러리 설치
 상위 디렉토리의 `environment.yaml` 파일을 사용할 것
@@ -22,7 +22,7 @@ python test.py -c "your_model_checkpoint"
 
 predict는 이미지 하나를 예측하는 작업임
 ```shell
-python main.py -mo predict -d "your_image_path" -c "your_model_checkpoint"
+python predict.py -mo predict -d "your_image_path" -c "your_model_checkpoint"
 ```
 - `-mo predict`: 수행할 작업 선택(`train` or `predict`) 
 - `-d`: 예측에 사용할 이미지 경로(default: `'../dataset/example.jpg'`)
