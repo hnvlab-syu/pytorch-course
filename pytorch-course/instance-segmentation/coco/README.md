@@ -15,6 +15,7 @@ conda env create -f environment.yaml
 ```shell
 |-- dataset
 `-- |-- instance_val2017.json
+    |-- instance_example.jpg
     `-- val2017
         |-- 000000000139.jpg
         |-- 000000000285.jpg
