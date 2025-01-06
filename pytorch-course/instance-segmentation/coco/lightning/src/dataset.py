@@ -189,8 +189,4 @@ class COCODataset(Dataset):
             "image_id": torch.tensor([image_id])
         }
 
-        
-
         return image, target
-    
-
