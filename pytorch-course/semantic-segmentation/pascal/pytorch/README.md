@@ -1,4 +1,4 @@
-# Lightning Semantic Segmentation
+# PyTorch Semantic Segmentation
 
 ## 가상환경 생성 및 라이브러리 설치
 상위 디렉토리의 `environment.yaml` 파일을 사용할 것
