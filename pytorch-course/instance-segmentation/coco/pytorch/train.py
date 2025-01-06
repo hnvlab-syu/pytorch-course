@@ -116,7 +116,6 @@ def train(segmentation_model, data, batch_size, epochs, save, device, num_worker
 
         val_mAP = val_map.compute()
         val_map.reset()
-        print(val_mAP)
 
         if best_val_map < val_mAP['map'].item():
             best_val_map = val_mAP['map'].item()
