@@ -2,6 +2,7 @@ import os
 import glob
 import argparse
 
+from tqdm import tqdm
 import torch
 from torch.utils.data import DataLoader
 from torchmetrics.detection.mean_ap import MeanAveragePrecision
@@ -40,7 +41,7 @@ def test(segmentation_model, data, batch_size, ckpt, device, num_workers):
     # test
     model.eval()
     with torch.no_grad():
-        for inputs, targets in test_dataloader:
+        for inputs, targets in tqdm(test_dataloader):
             inputs = [image.to(device) for image in inputs]
             targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
 
@@ -50,7 +51,7 @@ def test(segmentation_model, data, batch_size, ckpt, device, num_workers):
     test_mAP = test_map.compute()
     test_map.reset()
 
-    print('Done!')
+    print(test_mAP)
 
 
 if __name__ == '__main__':
