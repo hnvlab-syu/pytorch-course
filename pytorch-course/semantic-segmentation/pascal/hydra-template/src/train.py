@@ -8,7 +8,6 @@ from lightning import Callback, LightningDataModule, LightningModule, Trainer
 from lightning.pytorch.loggers import Logger
 import hydra
 
-
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
 from src.utils import (
