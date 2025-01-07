@@ -26,9 +26,6 @@ class COCODataset(Dataset):
             if img['file_name'] == file_name:
                 image_id = img['id']
 
-        ann_ids = self.coco.getAnnIds(imgIds=image_id)
-        annotations = self.coco.loadAnns(ann_ids)
-
         image = Image.open(image_path).convert("RGB")
         original_width, original_height = image.size
 
