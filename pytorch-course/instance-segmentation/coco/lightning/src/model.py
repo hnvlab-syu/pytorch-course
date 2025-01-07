@@ -15,7 +15,6 @@ def _mask_rcnn_model(num_classes=91):
         dim_reduced=256,
         num_classes=num_classes
     )
-
     return model
 
 def _mask_rcnn_v2_model(num_classes=91):
@@ -27,5 +26,4 @@ def _mask_rcnn_v2_model(num_classes=91):
         dim_reduced=256,
         num_classes=num_classes
     )
-
     return model
