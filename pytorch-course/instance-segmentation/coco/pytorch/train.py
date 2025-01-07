@@ -73,9 +73,8 @@ def train(segmentation_model, data, batch_size, epochs, save, device, num_worker
             cls_loss = outputs.get('loss_classifier', 0)
             box_loss = outputs.get('loss_box_reg', 0)
             mask_loss = outputs.get('loss_mask', 0)
-            obj_loss = outputs.get('loss_objectness', 0)
 
-            loss = cls_loss + box_loss + obj_loss + mask_loss
+            loss = cls_loss + box_loss + mask_loss
 
             optimizer.zero_grad()
             loss.backward()
@@ -83,13 +82,12 @@ def train(segmentation_model, data, batch_size, epochs, save, device, num_worker
 
             if batch % 20 == 0:
                 current = batch * len(inputs)
-                message = 'total loss: {:.4f}, cls loss: {:.4f}, box loss: {:.4f}, mask loss: {:.4f}, obj loss: {:.4f}  [{:>5d}/{:>5d}]'
+                message = 'total loss: {:.4f}, cls loss: {:.4f}, box loss: {:.4f}, mask loss: {:.4f}  [{:>5d}/{:>5d}]'
                 message = message.format(
                     loss,
                     cls_loss,
                     box_loss,
                     mask_loss,
-                    obj_loss,
                     current,
                     size
                 )
@@ -100,7 +98,6 @@ def train(segmentation_model, data, batch_size, epochs, save, device, num_worker
             "train-cls_loss": cls_loss,
             "train-box_loss": box_loss,
             "train-mask_loss": mask_loss,
-            "train-obj_loss": obj_loss,
             "train-total_loss": loss
         })
         
