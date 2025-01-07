@@ -15,10 +15,9 @@ from src.utils import visualize_prediction, SEED
 L.seed_everything(SEED)
 
 class SegmentationModel(L.LightningModule):
-    def __init__(self, model, batch_size: int = 8):
+    def __init__(self, model):
         super().__init__()
         self.model = model
-        self.batch_size = batch_size
 
         self.val_map = MeanAveragePrecision()
         self.best_val_map = 0

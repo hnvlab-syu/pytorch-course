@@ -1,7 +1,7 @@
 # Lightning Instance Segmentation
 
 ## 가상환경 생성 및 라이브러리 설치
-현재 디렉토리의 `environment.yaml` 파일을 사용할 것
+상위 디렉토리의 `environment.yaml` 파일을 사용할 것
 윈도우 환경에서 하는 것을 권장
 
 ## 훈련 및 추론 및 테스트
