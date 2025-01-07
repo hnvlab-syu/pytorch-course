@@ -8,7 +8,7 @@ optimizer:
   _target_: torch.optim.SGD
   _partial_: true
   lr: 0.001
-  weight_decay: 0.9
+  momentum: 0.9
 
 scheduler:
   _target_: torch.optim.lr_scheduler.ReduceLROnPlateau

@@ -1,12 +1,12 @@
 from typing import Any, Dict, List, Optional, Tuple
 
 import hydra
-import lightning as L
 import rootutils
-import torch
+from omegaconf import DictConfig
+
+import lightning as L
 from lightning import Callback, LightningDataModule, LightningModule, Trainer
 from lightning.pytorch.loggers import Logger
-from omegaconf import DictConfig
 
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
@@ -73,8 +73,6 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         log.info(f"Best ckpt path: {ckpt_path}")
 
     test_metrics = trainer.callback_metrics
-
-    # merge train and test metrics
     metric_dict = {**train_metrics, **test_metrics}
 
     return metric_dict, object_dict
@@ -84,10 +82,8 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
 def main(cfg: DictConfig) -> Optional[float]:
     extras(cfg)
 
-    # train the model
     metric_dict, _ = train(cfg)
 
-    # safely retrieve metric value for hydra-based hyperparameter optimization
     metric_value = get_metric_value(
         metric_dict=metric_dict, metric_name=cfg.get("optimized_metric")
     )

@@ -1,6 +1,5 @@
 _target_: src.data.coco_datamodule.COCODataModule
-data: ${paths.data_dir}
+data: ${pred_image}
 batch_size: 8 # Needs to be divisible by the number of devices (e.g., if in a distributed setup)
 num_workers: 0
-mode: "train"
-# pin_memory: False
+mode: "predict"
