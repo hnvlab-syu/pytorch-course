@@ -4,9 +4,9 @@ import rootutils
 from omegaconf import DictConfig
 
 import lightning as L
-import hydra
 from lightning import Callback, LightningDataModule, LightningModule, Trainer
 from lightning.pytorch.loggers import Logger
+import hydra
 
 
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
