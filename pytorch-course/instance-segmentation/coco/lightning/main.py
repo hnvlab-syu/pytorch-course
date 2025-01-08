@@ -9,7 +9,7 @@ from lightning.pytorch.loggers import WandbLogger
 
 from src.dataset import COCODataModule
 from src.model import create_model
-from src.utils import visualize_prediction, SEED
+from src.utils import visualize_prediction, visualize_batch, SEED
 
 
 L.seed_everything(SEED)
@@ -53,7 +53,9 @@ class SegmentationModel(L.LightningModule):
 
         outputs = self.model(inputs)
         self.val_map.update(outputs, targets)
-        
+
+        # visualize_batch(inputs[0], targets[0], outputs[0])
+
         return outputs
 
     def on_validation_epoch_end(self):

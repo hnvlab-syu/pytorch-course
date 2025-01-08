@@ -9,12 +9,12 @@ conda env create -f environment.yaml
 
 ## 다운로드
 - 접속 권한 확인 후 HnVLab Synology 접속 [Here](https://hnvlab.synology.me:5001/)
-- Imagenet-val.zip 파일을 자신의 공유 폴더에 복사
-- 현재경로의 dataset 폴더에 압축해제
+- COCO 폴더의 val2017.zip과 annotations_trainval2017.zip의 instances_val2017.json 파일을 다운
+- 현재 경로의 dataset 폴더에 압축 해제 및 파일 배치
 - 다음과 같은 형식이 되어야 함
 ```shell
 |-- dataset
-`-- |-- instance_val2017.json
+`-- |-- instances_val2017.json
     |-- instance_example.jpg
     `-- val2017
         |-- 000000000139.jpg
