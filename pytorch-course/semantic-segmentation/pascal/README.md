@@ -4,6 +4,7 @@ Pascal VOC 2012 데이터셋의 Validation 데이터셋을 사용함
 ## 가상환경 생성 및 라이브러리 설치
 - `environment.yaml` 파일의 `name` 부분을 원하는 가상환경 이름으로 변경할 것 (default: `semant`)
 - 오류 발생 시 윈도우 환경에서 실행 할 것
+- 라이브러리 관련 문제 발생 시 직접 라이브러리 설치할 것
 ```shell
 conda env create -f environment.yaml
 ```
