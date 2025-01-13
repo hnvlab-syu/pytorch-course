@@ -1,8 +1,8 @@
 # @package _global_
 
 defaults:
-  - override /data: imagenet
-  - override /model: imagenet
+  - override /data: coco
+  - override /model: coco
   - override /callbacks: default
   - override /trainer: gpu
   - override /logger: wandb
@@ -13,18 +13,18 @@ seed: 36
 
 trainer:
   min_epochs: 5
-  max_epochs: 30
+  max_epochs: 100
   precision: "16-mixed"
 
 model:
   net:
-    # model: "efficientnet"
+    model: "fasterrcnnv2"
 
 data:
-  batch_size: 128
+  batch_size: 4
 
 callbacks:
   early_stopping:
-    monitor: "val/acc"
-    patience: 5
+    monitor: "val/mAP"
+    patience: 10
     mode: "max"
