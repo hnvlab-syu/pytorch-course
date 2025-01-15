@@ -34,11 +34,6 @@ class COCODataModule(L.LightningDataModule):
                             ], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
         self.val_transforms = A.Compose([
                             ], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
-        # test/predict용 transform (bbox params 제외) ?????????????
-        # self.test_transforms = A.Compose([])
-
-    # def prepare_data(self):
-    #     # download
 
     def setup(self, stage: str):
         if self.mode != 'predict':
@@ -63,9 +58,6 @@ class COCODataModule(L.LightningDataModule):
             train_data, temp_data = train_test_split(data, test_size=0.2, random_state=SEED)
             val_data, test_data = train_test_split(temp_data, test_size=0.5, random_state=SEED)
 
-        # else:
-        #     pred_data = [Image.open(self.data_path).convert('RGB')]
-
         if stage == "fit":
             self.train_dataset = train_data
             self.val_dataset = val_data
@@ -78,7 +70,7 @@ class COCODataModule(L.LightningDataModule):
             print(f"Test size: {len(self.test_dataset)}")
 
         if stage == "predict":
-            self.pred_dataset = [self.data_path]   # prediction의 경우, 이미지 한 장 경로
+            self.pred_dataset = [self.data_path]  
 
 
     def _train_collate_fn(self, batch):
@@ -121,7 +113,7 @@ class COCODataModule(L.LightningDataModule):
             img = Image.open(b['image_path']).convert('RGB')
             img = np.array(img)
             
-            boxes = np.array(b['boxes'], dtype=np.float32)  # bbox 형식 변환: [x, y, width, height]-> [x1, y1, x2, y2] 좌/우상단
+            boxes = np.array(b['boxes'], dtype=np.float32) 
             boxes[:, 2] = boxes[:, 0] + boxes[:, 2]
             boxes[:, 3] = boxes[:, 1] + boxes[:, 3]
             
@@ -147,17 +139,16 @@ class COCODataModule(L.LightningDataModule):
     
     def _pred_collate_fn(self, batch):
         images = []
-        # targets = []
         
         for b in batch:
-            img_path = b  # predict 모드에서는 b: 이미지 경로(문자열)
+            img_path = b  
             img = Image.open(img_path).convert('RGB')
             img = np.array(img)
             
             transformed = self.val_transforms(image=img)
             img = transformed['image']
 
-            img = torch.tensor(img).permute(2, 0, 1)  # HWC->CHW
+            img = torch.tensor(img).permute(2, 0, 1)  
             img = img.float() / 255.0
             
             images.append(img)
@@ -198,7 +189,3 @@ class COCODataModule(L.LightningDataModule):
                           shuffle=False, 
                           drop_last=True, 
                           pin_memory=True)
-        
-
-   
-    
