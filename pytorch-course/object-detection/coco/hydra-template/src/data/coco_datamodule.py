@@ -1,11 +1,9 @@
 # COCO validatdion dataset 8:1:1로 나눠서 사용
 import os
 import json
-import glob
 import torch
-import pandas as pd
 import numpy as np
-# import pytorch_lightning as pl
+
 import lightning.pytorch as L
 import albumentations as A
 
@@ -17,7 +15,6 @@ from sklearn.model_selection import train_test_split
 
 SEED = 36
 L.seed_everything(SEED)
-
 
 class COCODataModule(L.LightningDataModule):
     def __init__(self, 
@@ -76,7 +73,7 @@ class COCODataModule(L.LightningDataModule):
             print(f"Test size: {len(self.test_dataset)}")
 
         if stage == "predict":
-            self.pred_dataset = [self.data_path]   # prediction의 경우, 이미지 한 장 경로
+            self.pred_dataset = [self.data_path]   
 
 
     def _train_collate_fn(self, batch):
@@ -87,7 +84,7 @@ class COCODataModule(L.LightningDataModule):
             img = Image.open(b['image_path']).convert('RGB')
             img = np.array(img)
             
-            boxes = np.array(b['boxes'], dtype=np.float32)  # bbox 형식 변환: [x, y, width, height]-> [x1, y1, x2, y2] 좌/우상단
+            boxes = np.array(b['boxes'], dtype=np.float32) 
             boxes[:, 2] = boxes[:, 0] + boxes[:, 2]
             boxes[:, 3] = boxes[:, 1] + boxes[:, 3]
             
@@ -119,7 +116,7 @@ class COCODataModule(L.LightningDataModule):
             img = Image.open(b['image_path']).convert('RGB')
             img = np.array(img)
             
-            boxes = np.array(b['boxes'], dtype=np.float32)  # bbox 형식 변환: [x, y, width, height]-> [x1, y1, x2, y2] 좌/우상단
+            boxes = np.array(b['boxes'], dtype=np.float32)  
             boxes[:, 2] = boxes[:, 0] + boxes[:, 2]
             boxes[:, 3] = boxes[:, 1] + boxes[:, 3]
             
@@ -144,7 +141,7 @@ class COCODataModule(L.LightningDataModule):
         return images, targets
     
     def _pred_collate_fn(self, batch):
-        img_path = batch[0]  # predict 모드에서는 b: 이미지 경로(문자열)
+        img_path = batch[0]
         img = Image.open(img_path).convert('RGB')
         img = np.array(img)
         # print('--------------np.array(img): ', img)

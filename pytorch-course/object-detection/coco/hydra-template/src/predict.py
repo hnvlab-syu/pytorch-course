@@ -63,26 +63,26 @@ def predict(cfg: DictConfig) -> None:
     img_np = np.array(img)
     
     for box, category_id, score in zip(pred['boxes'], pred['labels'], pred['scores']):
-        if score > 0.75:  # confidence threshold
+        if score > 0.75: 
             box = box.cpu().numpy()
             cv2.rectangle(
                 img_np,
                 (int(box[0]), int(box[1])),
                 (int(box[2]), int(box[3])),
                 (0, 0, 255),
-                2   # 글씨 두께
+                2   
             )
 
             category_name = None
             for n in categories:
-                if n['id'] == category_id.item():  # tensor -> python int
+                if n['id'] == category_id.item(): 
                     category_name = n['name']
                     break
             if category_name is None:
                 category_name = 'unknown'
 
             text = f"{category_name}({category_id}): {(score*100):.2f}"
-            cv2.putText(img_np, text, (int(box[0]), int(box[1] - 10)), cv2.FONT_HERSHEY_SIMPLEX,   # OpenCV 이미지 좌표계: (0,0)왼쪽 상단 => y좌표 방향 반대
+            cv2.putText(img_np, text, (int(box[0]), int(box[1] - 10)), cv2.FONT_HERSHEY_SIMPLEX,  
                             0.5, (0, 0, 255), 1, cv2.LINE_AA)
             
     save_dir = os.path.join(cfg.paths.output_dir, 'prediction')
@@ -99,24 +99,3 @@ def main(cfg: DictConfig) -> None:
 
 if __name__ == "__main__":
     main()
-    # output  = trainer.predict(model=model, datamodule=datamodule, ckpt_path=cfg.ckpt_path)
-    # pred_cls, img = output[0]
-    # txt_path = '../dataset/folder_num_class_map.txt'
-    # classes_map = pd.read_table(txt_path, header=None, sep=' ')
-    # classes_map.columns = ['folder', 'number', 'classes']
-    
-    # pred_label = classes_map['classes'][pred_cls.item()]
-    # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    # img = cv2.resize(img, (800, 600))
-    # cv2.putText(
-    #     img,
-    #     f'Predicted class: "{pred_cls[0]}", Predicted label: "{pred_label}"',
-    #     (50, 50),
-    #     cv2.FONT_HERSHEY_SIMPLEX,
-    #     0.8,
-    #     (0, 0, 0),
-    #     2
-    # )
-    # cv2.imshow('Predicted output', img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
