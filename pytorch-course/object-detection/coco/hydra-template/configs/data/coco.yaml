@@ -1,6 +1,7 @@
-_target_: src.data.imagenet_datamodule.ImageNetDataModule
-data_dir: ${paths.data_dir}
-batch_size: 64 # Needs to be divisible by the number of devices (e.g., if in a distributed setup)
+_target_: src.data.coco_datamodule.COCODataModule
+data_dir: ${paths.data_dir}/
+annots_dir: ${paths.annots_dir}
+batch_size: 8 # Needs to be divisible by the number of devices (e.g., if in a distributed setup)
 num_workers: 0
-pin_memory: False
-# mode: "train"
+# pin_memory: False
+mode: "train"
