@@ -3,10 +3,13 @@ _target_: lightning.pytorch.trainer.Trainer
 default_root_dir: ${paths.output_dir}
 
 min_epochs: 1 # prevents early stopping
-max_epochs: 6 # 원래는 10이었음
+max_epochs: 50
 
 accelerator: cpu
 devices: 1
+
+# skip checking valid dataset
+# num_sanity_val_steps: 0
 
 # mixed precision for extra speed-up
 # precision: 16

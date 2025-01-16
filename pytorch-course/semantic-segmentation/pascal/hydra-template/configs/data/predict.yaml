@@ -1,5 +1,5 @@
 _target_: src.data.pascal_datamodule.PascalVOC2012DataModule
-data_dir: ${paths.data_dir}/VOC2012
-batch_size: 32
-mode: "train"
+data_dir: ${pred_image}
+batch_size: 1
+mode: "predict"
 num_workers: 0
