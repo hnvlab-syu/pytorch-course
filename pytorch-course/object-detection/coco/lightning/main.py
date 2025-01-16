@@ -136,23 +136,21 @@ def main(batch_size, device, gpus, epoch, precision, num_workers, data, annots, 
             ModelCheckpoint(
                 monitor='val/mAP',
                 dirpath=save_path,
-                filename='best-{epoch}-{val_mAP:.2f}',
+                filename='best-{epoch}-{val/mAP:.2f}',
                 save_top_k=1, # best 모델만 
                 mode='max',
                 save_weights_only=True,
-                # callback_state_key='best_checkpoint'
             ),
             # ModelCheckpoint(
             #     monitor='val/mAP',
             #     dirpath=save_path,
-            #     filename='{epoch}-{val_mAP:.2f}',
+            #     filename='{epoch}-{val/mAP:.2f}',
             #     save_top_k=-1,
             #     mode='max',
             #     save_weights_only=True,
-            #     callback_state_key='all_checkpoints'
             # ),
             EarlyStopping(
-                monitor='val_mAP',
+                monitor='val/mAP',
                 min_delta=0.00,
                 patience=10,
                 verbose=False,
@@ -239,7 +237,7 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--num_workers', type=int, default=0)
     parser.add_argument('-d', '--data_path', dest='data', type=str, default='../datasets/val2017')   # coco경로에서 python lightning/main.py
     parser.add_argument('-a', '--annots_path', dest='annots', type=str, default='../datasets/annotations')
-    parser.add_argument('-m', '--model', type=str, default='fasterrcnn')
+    parser.add_argument('-m', '--model', type=str, default='fasterrcnnv2')
     parser.add_argument('-mo', '--mode', type=str, default='train')
     parser.add_argument('-c', '--ckpt', type=str, default='')
     parser.add_argument('-s', '--save_path', type=str, default='./checkpoint/')
