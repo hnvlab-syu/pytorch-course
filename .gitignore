@@ -10,6 +10,11 @@ checkpoint
 !**/dataset/*.txt
 !**/dataset/*.jpg
 
+**/datasets/**
+!**/datasets/.gitkeep
+!**/datasets/*.txt
+!**/datasets/*.jpg
+
 # Ignore model files
 *.pth
 *.pkl

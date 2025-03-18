@@ -1,23 +1,23 @@
-_target_: src.models.model.ClassficationModel
+_target_: src.models.model.DetectionModel
 
 optimizer:
-  _target_: torch.optim.Adam
+  _target_: torch.optim.Adam # torch.optim.SGD
   _partial_: true
-  lr: 0.001
-  weight_decay: 0.0
+  lr: 0.001  # 1e-3
+  # weight_decay: 0.0  # 0.0005
 
 scheduler:
-  _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+  _target_: torch.optim.lr_scheduler.ReduceLROnPlateau  
   _partial_: true
   mode: min
   factor: 0.1
   patience: 10
 
 net:
-  _target_: src.models.components.classification_model.create_model
-  model: resnet
+  _target_: src.models.components.object_detection_model.create_model
+  model: fasterrcnnv2
 
 # compile model for faster training with pytorch 2.0
 compile: false
 
-num_classes: 1000
+# num_classes: 1000
